@@ -1,0 +1,123 @@
+{
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "author": {
+    "email": "info@lennard-fickus.de",
+    "name": "LennardFi"
+  },
+  "categories": [
+    "Other"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "rocket-chat-status.deleteStatusCache",
+        "title": "Rocket.Chat Status: Delete status cache"
+      },
+      {
+        "command": "rocket-chat-status.downloadStatus",
+        "title": "Rocket.Chat Status: Download status"
+      },
+      {
+        "command": "rocket-chat-status.login",
+        "title": "Rocket.Chat Status: Login"
+      },
+      {
+        "command": "rocket-chat-status.logout",
+        "title": "Rocket.Chat Status: Logout"
+      },
+      {
+        "command": "rocket-chat-status.setStatus",
+        "title": "Rocket.Chat Status: Set status"
+      },
+      {
+        "command": "rocket-chat-status.setStatusMessage",
+        "title": "Rocket.Chat Status: Set status message"
+      },
+      {
+        "command": "rocket-chat-status.setup",
+        "title": "Rocket.Chat Status: Setup"
+      },
+      {
+        "command": "rocket-chat-status.bookmarkCurrentStatus",
+        "title": "Rocket.Chat Status: Bookmark current status"
+      }
+    ],
+    "configuration": {
+      "properties": {
+        "rocket-chat-status.apiUrl": {
+          "description": "The base URL of the API endpoint",
+          "examples": [
+            "https://rocket.example.com/"
+          ],
+          "title": "API base URL",
+          "type": "string"
+        },
+        "rocket-chat-status.bookmarkedStatuses": {
+          "default": [],
+          "description": "This setting can be used to bookmarked statuses.",
+          "items": {
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "online": {
+                "enum": [
+                  "online",
+                  "away",
+                  "busy",
+                  "offline"
+                ],
+                "type": "string"
+              }
+            }
+          },
+          "uniqueItems": true
+        },
+        "rocket-chat-status.statusCacheLimit": {
+          "default": 10,
+          "markdownDescription": "If this option is not `0` the extension caches the last amount of statuses.",
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Status cache limit",
+          "type": "number"
+        }
+      },
+      "title": "Rocket.Chat Status"
+    }
+  },
+  "description": "Set the Rocket.Chat status from within VSCode",
+  "devDependencies": {
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.54.0",
+    "@typescript-eslint/eslint-plugin": "^4.14.1",
+    "@typescript-eslint/parser": "^4.14.1",
+    "eslint": "^7.19.0",
+    "ts-loader": "^8.0.14",
+    "typescript": "^4.1.3",
+    "vscode-test": "^1.5.0",
+    "webpack": "^5.19.0",
+    "webpack-cli": "^4.4.0"
+  },
+  "displayName": "Rocket.Chat Status",
+  "engines": {
+    "vscode": "^1.54.0"
+  },
+  "main": "./dist/extension.js",
+  "name": "rocket-chat-status",
+  "publisher": "lennardfi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LennardFi/rocket-chat-status"
+  },
+  "scripts": {
+    "compile": "webpack",
+    "lint": "eslint src --ext ts",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "pretest": "npm run test-compile && npm run lint",
+    "vscode:prepublish": "npm run package",
+    "watch": "webpack --watch"
+  },
+  "version": "0.0.1"
+}
