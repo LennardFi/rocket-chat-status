@@ -119,5 +119,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
