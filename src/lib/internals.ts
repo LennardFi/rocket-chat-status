@@ -44,23 +44,23 @@ export async function setApiUrl(apiUrl: string): Promise<void> {
         .update(apiUrlField, apiUrl, true)
 }
 
-const statusCacheLimitField = "statusCacheLimit"
+const statusHistoryLimitField = "statusHistoryLimit"
 
-export async function getStatusCacheLimit(): Promise<number> {
+export async function getStatusHistoryLimit(): Promise<number> {
     const cacheLimit =
         vscode.workspace
             .getConfiguration(configSection)
-            .get<number>(statusCacheLimitField)
+            .get<number>(statusHistoryLimitField)
     if (cacheLimit === undefined) {
         throw new Error("No value for status cache limit found.")
     }
     return cacheLimit
 }
 
-export async function setStatusCacheLimit(cacheLimit: number): Promise<void> {
+export async function setStatusHistoryLimit(cacheLimit: number): Promise<void> {
     return await vscode.workspace
         .getConfiguration(configSection)
-        .update(statusCacheLimitField, cacheLimit, true)
+        .update(statusHistoryLimitField, cacheLimit, true)
 }
 
 const currentStatusField = "status"
@@ -69,49 +69,49 @@ export async function getCurrentStatus(ctx: vscode.ExtensionContext): Promise<Ma
     return ctx.globalState.get<RocketChatStatus.Status>(currentStatusField)
 }
 
-export async function setCurrentStatus(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
+export async function setCurrentStatus(ctx: vscode.ExtensionContext, status: Maybe<RocketChatStatus.Status>): Promise<void> {
     const current = await getCurrentStatus(ctx)
 
     if (current) {
-        await addToStatusCache(ctx, current)
+        await addToStatusHistory(ctx, current)
     }
 
     await ctx.globalState.update(currentStatusField, status)
     await updateStatusBarLabel(ctx)
 }
 
-const statusCacheField = "statusCache"
+const statusHistoryField = "statusHistory"
 
-export async function addToStatusCache(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
-    const cache = await getStatusCache(ctx)
+export async function addToStatusHistory(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
+    const cache = await getStatusHistory(ctx)
     const bookmarked = await getBookmarkedStatuses()
-    const cacheLimit = await getStatusCacheLimit()
-    const nextCache =
+    const cacheLimit = await getStatusHistoryLimit()
+    const nextHistory =
         [status, ...cache
             .filter(s =>
                 (s.message !== status.message || s.online !== status.online) &&
                 !bookmarked.some(bookmarkedStatus =>
                     bookmarkedStatus.message === s.message && bookmarkedStatus.online === s.online))]
             .slice(0, cacheLimit)
-    return await ctx.globalState.update(statusCacheField, nextCache)
+    return await ctx.globalState.update(statusHistoryField, nextHistory)
 }
 
-export async function deleteStatusCache(ctx: vscode.ExtensionContext): Promise<void> {
-    return await ctx.globalState.update(statusCacheField, [])
+export async function deleteStatusHistory(ctx: vscode.ExtensionContext): Promise<void> {
+    return await ctx.globalState.update(statusHistoryField, [])
 }
 
-export async function removeFromStatusCache(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
-    const cache = await getStatusCache(ctx)
-    const cacheLimit = await getStatusCacheLimit()
-    const nextCache =
+export async function removeFromStatusHistory(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
+    const cache = await getStatusHistory(ctx)
+    const cacheLimit = await getStatusHistoryLimit()
+    const nextHistory =
         cache
             .filter(s => (s.message !== status.message || s.online !== status.online))
             .slice(0, cacheLimit)
-    return await ctx.globalState.update(statusCacheField, nextCache)
+    return await ctx.globalState.update(statusHistoryField, nextHistory)
 }
 
-export async function getStatusCache(ctx: vscode.ExtensionContext): Promise<RocketChatStatus.Status[]> {
-    return [...(ctx.globalState.get<RocketChatStatus.Status[]>(statusCacheField) ?? [])]
+export async function getStatusHistory(ctx: vscode.ExtensionContext): Promise<RocketChatStatus.Status[]> {
+    return [...(ctx.globalState.get<RocketChatStatus.Status[]>(statusHistoryField) ?? [])]
 }
 
 const bookmarkedStatusesField = "bookmarkedStatuses"
@@ -147,7 +147,7 @@ export async function getBookmarkedStatuses(): Promise<RocketChatStatus.Status[]
 export const onlineStatusLabels: Record<RocketChatStatus.OnlineStatus, string> = {
     away: "Away",
     busy: "Busy",
-    offline: "Hidden",
+    offline: "Offline",
     online: "Online",
 }
 
@@ -164,8 +164,8 @@ export async function showStatusSelectionInput(options: RocketChatStatus.StatusS
         })
     }
 
-    if (options.cache) {
-        const cache = await getStatusCache(options.context)
+    if (options.history) {
+        const cache = await getStatusHistory(options.context)
 
         cache.forEach(cachedStatus => {
             const onlineLabel = onlineStatusLabels[cachedStatus.online]
@@ -236,7 +236,7 @@ export async function showMessagePicker(ctx: vscode.ExtensionContext): Promise<M
     return selectedMessage
 }
 
-const statusBarItem: vscode.StatusBarItem =
+export const statusBarItem: vscode.StatusBarItem =
     vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 3)
 
 export async function updateStatusBarLabel(ctx: vscode.ExtensionContext): Promise<void> {
@@ -247,9 +247,7 @@ export async function updateStatusBarLabel(ctx: vscode.ExtensionContext): Promis
         statusBarItem.show()
         return
     }
-    statusBarItem.command = undefined
-    statusBarItem.text = "$(circle-slash) Not logged in"
-    statusBarItem.show()
+    statusBarItem.hide()
 }
 
 export async function showNotConfiguredError(): Promise<void> {

@@ -29,7 +29,7 @@ export declare namespace RocketChatStatus {
 
     type Command =
         | "bookmarkCurrentStatus"
-        | "deleteStatusCache"
+        | "deleteStatusHistory"
         | "downloadStatus"
         | "login"
         | "logout"
@@ -63,7 +63,7 @@ export declare namespace RocketChatStatus {
         /**
          * If `true` all cached statuses will be added to the selection.
          */
-        cache?: boolean
+        history?: boolean
         /**
          * The VSCode extension context used internally
          */

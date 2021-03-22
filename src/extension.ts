@@ -27,11 +27,11 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		}
 
 		await internals.addBookmarkedStatus(current)
-		await internals.removeFromStatusCache(ctx, current)
+		await internals.removeFromStatusHistory(ctx, current)
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("deleteStatusCache"), async () => {
-		await internals.deleteStatusCache(ctx)
+	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("deleteStatusHistory"), async () => {
+		await internals.deleteStatusHistory(ctx)
 	}))
 
 	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("downloadStatus"), async () => {
@@ -78,15 +78,15 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 
 		const authOptions = await api.login(apiEndpoint, user, password)
 
-		if (authOptions) {
-			await internals.setAuthOptions(ctx, authOptions)
-			return
-		}
+		await internals.setAuthOptions(ctx, authOptions)
 
-		await vscode.window.showErrorMessage("Login failed. Credentials are incorrect.")
+		const status = await api.getStatus(apiEndpoint, authOptions)
+		await internals.setCurrentStatus(ctx, status)
 	}))
 
 	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("logout"), async () => {
+		await internals.setCurrentStatus(ctx, undefined)
+
 		const authOptions = await internals.getAuthOptions(ctx)
 
 		if (authOptions === undefined) {
@@ -96,8 +96,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		const apiEndpoint = await internals.getApiUrl()
 
 		if (apiEndpoint !== undefined) {
-			await api.logout(apiEndpoint, authOptions)
-			return
+			return await api.logout(apiEndpoint, authOptions)
 		} else {
 			const result = await vscode.window.showWarningMessage(
 				"Currently, no server URL has been configured. " +
@@ -131,11 +130,11 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		}
 
 		let selected = await internals.showStatusSelectionInput({
-			cache: true,
+			bookmarked: true,
 			context: ctx,
 			create: true,
+			history: true,
 			icons: true,
-			bookmarked: true,
 		})
 
 		if (selected === undefined) {
@@ -221,6 +220,8 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 
 		await internals.setApiUrl(apiEndpoint)
 	}))
+
+	ctx.subscriptions.push(internals.statusBarItem)
 }
 
 export async function deactivate(): Promise<void> {

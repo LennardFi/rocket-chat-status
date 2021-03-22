@@ -12,8 +12,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "rocket-chat-status.deleteStatusCache",
-        "title": "Rocket.Chat Status: Delete status cache"
+        "command": "rocket-chat-status.deleteStatusHistory",
+        "title": "Rocket.Chat Status: Delete status history"
       },
       {
         "command": "rocket-chat-status.downloadStatus",
@@ -75,12 +75,12 @@
           },
           "uniqueItems": true
         },
-        "rocket-chat-status.statusCacheLimit": {
+        "rocket-chat-status.statusHistoryLimit": {
           "default": 10,
-          "markdownDescription": "If this option is not `0` the extension caches the last amount of statuses.",
+          "markdownDescription": "If this option is not `0`, the extension stores the specified number of statuses last set by this extension.",
           "maximum": 255,
           "minimum": 0,
-          "title": "Status cache limit",
+          "title": "Status history limit",
           "type": "number"
         }
       },
@@ -119,5 +119,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.0.1"
+  "version": "0.1.0"
 }
