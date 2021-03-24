@@ -7,6 +7,12 @@ The following features may be added in the future:
 - Check API for current status periodically and set the value in the extension
   global state if the downloaded status differs from the current value.
 
+## [0.1.2] - 2021-03-24
+
+### Changed
+
+- Updated and added descriptions for the extension configurations.
+
 ## [0.1.1] - 2021-03-22
 
 ### Added
