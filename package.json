@@ -56,13 +56,15 @@
         },
         "rocket-chat-status.bookmarkedStatuses": {
           "default": [],
-          "description": "This setting can be used to bookmarked statuses.",
+          "description": "Contains the bookmarked statuses.",
           "items": {
             "properties": {
               "message": {
+                "description": "The optional message of the status.",
                 "type": "string"
               },
               "online": {
+                "description": "The online status like \"online\" or \"busy\".",
                 "enum": [
                   "online",
                   "away",
@@ -73,6 +75,8 @@
               }
             }
           },
+          "title": "Bookmarked statuses",
+          "type": "array",
           "uniqueItems": true
         },
         "rocket-chat-status.statusHistoryLimit": {
@@ -119,5 +123,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.1.1"
+  "version": "0.1.3"
 }

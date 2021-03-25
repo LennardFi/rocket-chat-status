@@ -14,6 +14,24 @@ The following features may be added in the future:
 - The extension code has been completely rewritten to make it easier to debug
   and extend
 
+## [0.1.3] - 2021-03-25
+
+### Added
+
+- Added explicit type property for `rocket-chat-status.bookmarkedStatuses`
+  config
+
+### Changed
+
+- Extended `README.md`
+- Fixed typo in `README.md`
+
+## [0.1.2] - 2021-03-24
+
+### Changed
+
+- Updated and added descriptions for the extension configurations.
+
 ## [0.1.1] - 2021-03-22
 
 ### Added
