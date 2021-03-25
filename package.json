@@ -76,6 +76,7 @@
             }
           },
           "title": "Bookmarked statuses",
+          "type": "array",
           "uniqueItems": true
         },
         "rocket-chat-status.statusHistoryLimit": {
@@ -122,5 +123,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.1.2"
+  "version": "0.1.3"
 }

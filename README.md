@@ -1,10 +1,13 @@
 # Rocket.Chat Status
 
+Visual Studio Code extension to set your Rocket.Chat status from within VSCode.
+
 > **Developer's note:** The extension can be used (I use it productively). The
 > extension is currently only published under a developer version (version below
 > `1.0.0`) because it has not yet been sufficiently tested by me in production.
 
-Visual Studio Code extension to your Rocket.Chat status from within VSCode.
+This extension uses the REST API of your Rocket.Chat server instance to set your
+status without leaving your coding environment.
 
 ## Features
 

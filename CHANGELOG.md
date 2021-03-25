@@ -7,6 +7,18 @@ The following features may be added in the future:
 - Check API for current status periodically and set the value in the extension
   global state if the downloaded status differs from the current value.
 
+## [0.1.3] - 2021-03-25
+
+### Added
+
+- Added explicit type property for `rocket-chat-status.bookmarkedStatuses`
+  config
+
+### Changed
+
+- Extended `README.md`
+- Fixed typo in `README.md`
+
 ## [0.1.2] - 2021-03-24
 
 ### Changed
