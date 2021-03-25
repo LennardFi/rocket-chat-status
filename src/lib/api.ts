@@ -53,15 +53,6 @@ const buildRequestOptions =
  * the `apiRequest` parameter.
  * @param apiRequest Options to build the request. Contains parameter like HTTP
  * method, request body, etc.
- * @param withData Specifies whether the API endpoint is expected to return data.
- * @returns
- * If `body` is `true` the returned promise resolves only if the API returned
- * with a success response and the response contains data.
- *
- * If `body` is `false` the promise will be resolved if the API returned with a
- * success response and the response does not contain data.
- *
- * The promise will be rejected in every other case.
  */
 async function apiFetch<T>(serverUrl: string, apiRequest: RocketChatStatus.ApiRequest): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -74,6 +65,10 @@ async function apiFetch<T>(serverUrl: string, apiRequest: RocketChatStatus.ApiRe
             res.on("end", () => {
                 if (res.statusCode === undefined) {
                     return reject(new Error("No status code"))
+                }
+
+                if (res.statusCode === 401 && apiRequest.auth !== undefined) {
+                    return reject()
                 }
 
                 if (res.statusCode < 200 || res.statusCode >= 400) {
