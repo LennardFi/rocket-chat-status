@@ -1,11 +1,19 @@
 # Change Log
 
-## [Unreleased]
+## [Scheduled]
 
 The following features may be added in the future:
 
 - Check API for current status periodically and set the value in the extension
   global state if the downloaded status differs from the current value.
+
+## [0.2.0] - 2021-04-12
+
+### Changed
+
+- Fixed a bug where the extension crashed when the credentials could not be
+  loaded.
+- Updated dependencies to the latest version
 
 ## [0.1.3] - 2021-03-25
 

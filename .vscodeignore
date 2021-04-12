@@ -1,13 +1,9 @@
 .gitignore
 .vscode-test/**
 .vscode/**
-.yarnrc
 **/.eslintrc.json
 **/*.map
 **/*.ts
 **/tsconfig.json
-CHANGELOG.md
-out/**
 src/**
-vsc-extension-quickstart.md
 webpack.config.js
