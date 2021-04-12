@@ -10,6 +10,8 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		const authOptions = await internals.getAuthOptions(ctx)
 
 		try {
+			await internals.initStatusBarItem(ctx)
+
 			if (baseUrl !== undefined && authOptions !== undefined) {
 				const currentStatus = await api.getStatus(baseUrl, authOptions)
 				await internals.setCurrentStatus(ctx, currentStatus)

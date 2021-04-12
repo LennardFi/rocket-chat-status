@@ -49,6 +49,19 @@ export async function setApiUrl(apiUrl: string): Promise<void> {
         .update(apiUrlField, apiUrl, true)
 }
 
+const onlineStatusLabelField = "onlineStatusLabel"
+
+export async function getOnlineStatusLabelConfig(): Promise<RocketChatStatus.OnlineStatusLabelConfig> {
+    const onlineStatusLabelConfig =
+        vscode.workspace
+            .getConfiguration(configSection)
+            .get<RocketChatStatus.OnlineStatusLabelConfig>(onlineStatusLabelField)
+    if (onlineStatusLabelConfig === undefined) {
+        throw new Error("No value for status label config found.")
+    }
+    return onlineStatusLabelConfig
+}
+
 const statusHistoryLimitField = "statusHistoryLimit"
 
 export async function getStatusHistoryLimit(): Promise<number> {
@@ -62,10 +75,12 @@ export async function getStatusHistoryLimit(): Promise<number> {
     return cacheLimit
 }
 
-export async function setStatusHistoryLimit(cacheLimit: number): Promise<void> {
-    return await vscode.workspace
-        .getConfiguration(configSection)
-        .update(statusHistoryLimitField, cacheLimit, true)
+export async function initStatusBarItem(ctx: vscode.ExtensionContext): Promise<void> {
+    vscode.workspace.onDidChangeConfiguration(async e => {
+        if (e.affectsConfiguration(configSection)) {
+            await updateStatusBarLabel(ctx)
+        }
+    })
 }
 
 const currentStatusField = "status"
@@ -127,17 +142,6 @@ export async function addBookmarkedStatus(status: RocketChatStatus.Status): Prom
         prev.some(s => s.message === status.message && s.online === status.online) ?
             [...prev] :
             [...prev, status]
-    return await vscode.workspace
-        .getConfiguration(configSection)
-        .update(bookmarkedStatusesField, next, true)
-}
-
-export async function deleteBookmarkedStatus(status: RocketChatStatus.Status): Promise<void> {
-    const prev = await getBookmarkedStatuses()
-    const next = prev.filter(s => !(
-        s.message === status.message &&
-        s.online === status.online
-    ))
     return await vscode.workspace
         .getConfiguration(configSection)
         .update(bookmarkedStatusesField, next, true)
@@ -246,9 +250,36 @@ export const statusBarItem: vscode.StatusBarItem =
 
 export async function updateStatusBarLabel(ctx: vscode.ExtensionContext): Promise<void> {
     const currentStatus = await getCurrentStatus(ctx)
+
+    const labelConfig = await getOnlineStatusLabelConfig()
+
+    if (labelConfig === "Label and color" || labelConfig === "Only color") {
+        switch (currentStatus?.online) {
+            case "away":
+                statusBarItem.color = "#f3be08"
+                break
+            case "busy":
+                statusBarItem.color = "#f5455c"
+                break
+            case "offline":
+                statusBarItem.color = undefined
+                break
+            case "online":
+                statusBarItem.color = "#2de0a5"
+                break
+        }
+    } else {
+        statusBarItem.color = undefined
+    }
+
     if (currentStatus) {
         statusBarItem.command = tools.buildCommand("setStatus")
-        statusBarItem.text = `$(rocket) [${onlineStatusLabels[currentStatus.online]}] ${currentStatus.message}`
+
+        if (labelConfig === "Only label" || labelConfig === "Label and color") {
+            statusBarItem.text = `$(rocket) [${onlineStatusLabels[currentStatus.online]}] ${currentStatus.message}`
+        } else {
+            statusBarItem.text = `$(rocket) ${currentStatus.message}`
+        }
         statusBarItem.show()
         return
     }

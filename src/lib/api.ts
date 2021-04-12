@@ -80,6 +80,10 @@ async function apiFetch<T>(serverUrl: string, apiRequest: RocketChatStatus.ApiRe
                     return reject(new Error(`API returned with HTTP error: ${res.statusCode} ${res.statusMessage ?? ""}`))
                 }
 
+                if (res.statusCode === 429) {
+                    return reject(new Error(`API returned with HTTP error: Too many requests.`))
+                }
+
                 try {
                     return resolve(JSON.parse(data) as T)
                 } catch (err: unknown) {

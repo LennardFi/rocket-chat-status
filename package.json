@@ -9,7 +9,6 @@
   "categories": [
     "Other"
   ],
-  "license": "MIT",
   "contributes": {
     "commands": [
       {
@@ -80,6 +79,21 @@
           "type": "array",
           "uniqueItems": true
         },
+        "rocket-chat-status.onlineStatusLabel": {
+          "default": "Label and color",
+          "description": "This config can be used to change the display behavior of the Online status in the Rocket.Chat status bar item",
+          "enum": [
+            "Label and color",
+            "Only color",
+            "Only label"
+          ],
+          "enumDescriptions": [
+            "Shows online status label and it's according color",
+            "Shows only the color of the online status",
+            "Shows only the online status label"
+          ],
+          "type": "string"
+        },
         "rocket-chat-status.statusHistoryLimit": {
           "default": 10,
           "markdownDescription": "If this option is not `0`, the extension stores the specified number of statuses last set by this extension.",
@@ -109,6 +123,7 @@
   "engines": {
     "vscode": "^1.54.0"
   },
+  "license": "MIT",
   "main": "./dist/extension.js",
   "name": "rocket-chat-status",
   "publisher": "lennardfi",
@@ -124,5 +139,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.2.0"
+  "version": "0.3.0"
 }

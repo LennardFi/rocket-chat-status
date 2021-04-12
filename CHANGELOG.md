@@ -7,6 +7,17 @@ The following features may be added in the future:
 - Check API for current status periodically and set the value in the extension
   global state if the downloaded status differs from the current value.
 
+## [0.3.0] - 2021-04-13
+
+### Added
+
+- Added `onlineStatusLabel` configuration to change the behavior of the label in
+  the status bar.
+
+### Changed
+
+- By default, the online status label is now colored.
+
 ## [0.2.0] - 2021-04-12
 
 ### Changed
