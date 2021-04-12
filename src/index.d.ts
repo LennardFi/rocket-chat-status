@@ -43,6 +43,11 @@ export declare namespace RocketChatStatus {
         | "offline"
         | "online"
 
+    type OnlineStatusLabelConfig =
+        | "Label and color"
+        | "Only color"
+        | "Only label"
+
     type OnlineStatusQuickPickLabel =
         | "Away"
         | "Busy"
