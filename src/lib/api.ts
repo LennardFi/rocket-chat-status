@@ -9,6 +9,7 @@ import { RocketChatStatus } from ".."
  * @param apiRequest Options to build the API request. Contains parameters like HTTP
  * method, request body, etc.
  * @returns The HTTPS request options used by the Node.js HTTPS client.
+ * @deprecated
  */
 const buildRequestOptions =
     (serverUrl: string, apiRequest: RocketChatStatus.ApiRequest): Https.RequestOptions => {
@@ -53,6 +54,7 @@ const buildRequestOptions =
  * the `apiRequest` parameter.
  * @param apiRequest Options to build the request. Contains parameter like HTTP
  * method, request body, etc.
+ * @deprecated
  */
 async function apiFetch<T>(serverUrl: string, apiRequest: RocketChatStatus.ApiRequest): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -103,6 +105,7 @@ function buildInvalidJsonApiResponse(endpoint: string): string {
  * @param password The password of the user
  * @returns The authorization token and user id to authenticate the extension
  * requests at the API.
+ * @deprecated
  */
 export async function login(serverUrl: string, user: string, password: string): Promise<RocketChatStatus.AuthOptions> {
     try {
@@ -133,6 +136,7 @@ export async function login(serverUrl: string, user: string, password: string): 
  * Invokes the authentication token in the database.
  * @param auth The information to authenticate the request and to allow the
  * server to associate the request with a user.
+ * @deprecated
  */
 export async function logout(serverUrl: string, auth: RocketChatStatus.AuthOptions): Promise<void> {
     try {
@@ -159,6 +163,7 @@ export async function logout(serverUrl: string, auth: RocketChatStatus.AuthOptio
  * server to associate the request with a user.
  * @returns The status currently set for the user linked to the given
  * `authToken` and user id.
+ * @deprecated
  */
 export async function getStatus(serverUrl: string, auth: RocketChatStatus.AuthOptions): Promise<RocketChatStatus.Status> {
     try {
@@ -187,6 +192,7 @@ export async function getStatus(serverUrl: string, auth: RocketChatStatus.AuthOp
  * @param auth The information to authenticate the request and to allow the
  * server to associate the request with a user.
  * @param status The new status of the user.
+ * @deprecated
  */
 export async function setStatus(serverUrl: string, auth: RocketChatStatus.AuthOptions, status: RocketChatStatus.Status): Promise<void> {
     try {

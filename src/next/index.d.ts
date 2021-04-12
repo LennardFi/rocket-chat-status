@@ -1,21 +1,47 @@
 export declare namespace RCSNext {
     namespace Base {
+        type Command =
+            | "bookmarkCurrentStatus"
+            | "deleteData"
+            | "downloadStatus"
+            | "login"
+            | "logout"
+            | "setStatus"
+            | "setStatusMessage"
+            | "setup"
+
         interface AuthOptions {
             authToken: string
             userId: string
         }
 
-        type OnlineStatus =
+        interface Setup extends AuthOptions {
+            baseUrl: string
+        }
+
+        type Online =
             | "online"
             | "away"
             | "busy"
             | "hidden"
-            | "offline"
 
         interface Status {
             message: string
-            online: OnlineStatus
+            offline: boolean
+            online: Online
         }
+
+        type StoredStatus = Omit<Status, "offline">
+
+        interface State {
+            bookmarked: StoredStatus[]
+            history: StoredStatus[]
+            status: Status
+        }
+
+        type Version =
+            | undefined
+            | "0.2.0"
     }
 
     namespace Network {
@@ -25,8 +51,8 @@ export declare namespace RCSNext {
         interface BaseRequestOptions {
             apiPath: string
             method: HttpMethod
+            setup: Base.Setup | string
             showAuthTokenError?: boolean
-            auth?: Base.AuthOptions
         }
 
         interface GetApiRequest extends BaseRequestOptions {
@@ -43,8 +69,10 @@ export declare namespace RCSNext {
             | PostApiRequest
 
         interface LoginApiEndpointResponse {
-            data: Base.AuthOptions & {
+            data: {
+                authToken: string
                 me: unknown
+                userId: string
             }
             status: "success"
         }
@@ -57,7 +85,7 @@ export declare namespace RCSNext {
         interface GetStatusApiEndpointResponse {
             connectionStatus: "offline" | "online"
             message: string
-            status: Base.OnlineStatus
+            status: "away" | "busy" | "online" | "offline"
             success: true
         }
 

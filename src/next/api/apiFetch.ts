@@ -2,16 +2,16 @@ import * as Https from "https"
 import { URL } from "url"
 import * as vscode from "vscode"
 import { RCSNext } from ".."
+import { buildCommand } from "../../lib/tools"
 
 /**
  * Builds a request options object used by the Node.js HTTPS client from the
  * given base URL and API request options.
- * @param serverUrl The base URL used to create the URL for the HTTP request.
  * @param apiRequest Options to build the API request. Contains parameters like HTTP
- * method, request body, etc.
+ * method, request body, base URL, etc.
  * @returns The HTTPS request options used by the Node.js HTTPS client.
  */
-function buildRequestOptions(serverUrl: string, apiRequest: RCSNext.Network.ApiRequest): Https.RequestOptions {
+function buildRequestOptions(apiRequest: RCSNext.Network.ApiRequest): Https.RequestOptions {
     const apiPath =
         apiRequest.apiPath.startsWith("/") ?
             apiRequest.apiPath.substring(1) :
@@ -21,19 +21,23 @@ function buildRequestOptions(serverUrl: string, apiRequest: RCSNext.Network.ApiR
         "accept": "application/json",
     }
 
-    if (apiRequest.auth) {
-        headers["x-auth-token"] = apiRequest.auth.authToken
-        headers["x-user-id"] = apiRequest.auth.userId
+    if (typeof apiRequest.setup === "object") {
+        headers["x-auth-token"] = apiRequest.setup.authToken
+        headers["x-user-id"] = apiRequest.setup.userId
     }
 
     if (apiRequest.method === "POST" && apiRequest.jsonBody !== undefined) {
         headers["content-type"] = "application/json"
     }
 
-    const baseUrl =
-        serverUrl.endsWith("/") ?
-            serverUrl :
-            `${serverUrl}/`
+    let baseUrl =
+        typeof apiRequest.setup === "string" ?
+            apiRequest.setup :
+            apiRequest.setup.baseUrl
+
+    if (!baseUrl.endsWith("/")) {
+        baseUrl = `${baseUrl}/`
+    }
 
     const endpoint = new URL(`${baseUrl}api/v1/${apiPath}`)
 
@@ -54,9 +58,9 @@ function buildRequestOptions(serverUrl: string, apiRequest: RCSNext.Network.ApiR
  * @param apiRequest Options to build the request. Contains parameter like HTTP
  * method, request body, etc.
  */
-export async function apiFetch<T>(serverUrl: string, apiRequest: RCSNext.Network.ApiRequest): Promise<T> {
+export async function apiFetch<T>(apiRequest: RCSNext.Network.ApiRequest): Promise<T> {
     return new Promise((resolve, reject) => {
-        const requestOptions = buildRequestOptions(serverUrl, apiRequest)
+        const requestOptions = buildRequestOptions(apiRequest)
         const req = Https.request(requestOptions, res => {
             let data = ""
             res.on("data", chunk => {
@@ -67,13 +71,13 @@ export async function apiFetch<T>(serverUrl: string, apiRequest: RCSNext.Network
                     return reject(new Error("No status code"))
                 }
 
-                if (res.statusCode === 401 && apiRequest.auth !== undefined && apiRequest.showAuthTokenError) {
+                if (res.statusCode === 401 && typeof apiRequest.setup === "object" && apiRequest.showAuthTokenError) {
+                    const loginAction = "Login"
                     void vscode.window
-                        .showErrorMessage("Authorization token isn't valid.", "Login")
+                        .showErrorMessage("Authorization token isn't valid.", loginAction)
                         .then(action => {
-                            if (action !== undefined) {
-                                // TODO: Call login cmd function
-                                return
+                            if (action === loginAction) {
+                                return vscode.commands.executeCommand(buildCommand("login"))
                             }
                             return
                         })

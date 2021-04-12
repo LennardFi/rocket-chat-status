@@ -1,66 +1,51 @@
 import { URL } from "url"
 import * as vscode from "vscode"
-import * as api from "./lib/api"
-import * as internals from "./lib/internals"
-import * as tools from "./lib/tools"
+import { buildCommand } from "./lib/tools"
+import { RocketChatStatusProvider } from "./next/provider"
 
 export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
-	{
-		const baseUrl = await internals.getApiUrl()
-		const authOptions = await internals.getAuthOptions(ctx)
+	const provider = new RocketChatStatusProvider(ctx)
 
-		try {
-			if (baseUrl !== undefined && authOptions !== undefined) {
-				const currentStatus = await api.getStatus(baseUrl, authOptions)
-				await internals.setCurrentStatus(ctx, currentStatus)
-			}
-		} catch (err: unknown) {
-			await vscode.window.showErrorMessage("Could not load current Rocket.Chat status.")
-		}
-	}
-
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("bookmarkCurrentStatus"), async () => {
-		const current = await internals.getCurrentStatus(ctx)
-
-		if (current === undefined) {
-			return await internals.showNoCurrentStateError()
-		}
-
-		await internals.addBookmarkedStatus(current)
-		await internals.removeFromStatusHistory(ctx, current)
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("bookmarkCurrentStatus"), async () => {
+		await provider.bookmarkCurrentStatus()
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("deleteStatusHistory"), async () => {
-		await internals.deleteStatusHistory(ctx)
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("deleteData"), async () => {
+		const deleteAction = "Delete"
+		const result =
+			await vscode.window
+				.showInformationMessage("This operation will delete all stored data.", deleteAction)
+		if (result === deleteAction) {
+			await provider.deleteData()
+		}
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("downloadStatus"), async () => {
-		const apiEndpoint = await internals.getApiUrl()
-
-		if (apiEndpoint === undefined) {
-			return await internals.showNotConfiguredError()
-		}
-
-		const authOptions = await internals.getAuthOptions(ctx)
-
-		if (authOptions === undefined) {
-			return await internals.showNotLoggedInError()
-		}
-
-		const status = await api.getStatus(apiEndpoint, authOptions)
-
-		await internals.setCurrentStatus(ctx, status)
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("downloadStatus"), async () => {
+		await provider.bookmarkCurrentStatus()
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("login"), async () => {
-		const apiEndpoint = await internals.getApiUrl()
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("login"), async () => {
+		await provider.checkIsReady(true)
 
-		if (apiEndpoint === undefined) {
-			return await internals.showNotConfiguredError()
+		const apiUrl = await vscode.window.showInputBox({
+			placeHolder: `e.g. "https://rocket.example.com"`,
+			prompt: "Base URL of the Rocket.Chat server instance",
+			validateInput: (url => {
+				try {
+					new URL(url)
+					return undefined
+				} catch (err: unknown) {
+					return "Invalid URL"
+				}
+			})
+		})
+
+		if (apiUrl === undefined) {
+			return
 		}
 
 		const user = await vscode.window.showInputBox({
-			prompt: "Username or mail"
+			prompt: "Username or mail address",
 		})
 
 		if (user === undefined) {
@@ -76,152 +61,24 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 			return
 		}
 
-		const authOptions = await api.login(apiEndpoint, user, password)
-
-		await internals.setAuthOptions(ctx, authOptions)
-
-		const status = await api.getStatus(apiEndpoint, authOptions)
-		await internals.setCurrentStatus(ctx, status)
+		await provider.login(apiUrl, user, password)
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("logout"), async () => {
-		await internals.setCurrentStatus(ctx, undefined)
-
-		const authOptions = await internals.getAuthOptions(ctx)
-
-		if (authOptions === undefined) {
-			return await internals.showNotLoggedInError()
-		}
-
-		const apiEndpoint = await internals.getApiUrl()
-
-		if (apiEndpoint !== undefined) {
-			return await api.logout(apiEndpoint, authOptions)
-		} else {
-			const result = await vscode.window.showWarningMessage(
-				"Currently, no server URL has been configured. " +
-				"If you delete the authentication data now, " +
-				"it will not be invalidated on the server. " +
-				"This could allow someone to log into your account " +
-				"using these authentication credentials.",
-				"Continue",
-				"Abort"
-			)
-
-			if (result === "Abort" || result === undefined) {
-				return
-			}
-		}
-
-		await internals.deleteAuthOptions(ctx)
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("logout"), async () => {
+		await provider.logout()
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("setStatus"), async () => {
-		const apiEndpoint = await internals.getApiUrl()
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("setStatus"), async () => {
+		const status = await provider.getStatus()
 
-		if (apiEndpoint === undefined) {
-			return await internals.showNotConfiguredError()
-		}
-
-		const authOptions = await internals.getAuthOptions(ctx)
-
-		if (authOptions === undefined) {
-			return await internals.showNotLoggedInError()
-		}
-
-		let selected = await internals.showStatusSelectionInput({
-			bookmarked: true,
-			context: ctx,
-			create: true,
-			history: true,
-			icons: true,
-		})
-
-		if (selected === undefined) {
-			return
-		}
-
-		if (selected === "new") {
-			const onlineStatus = await internals.showOnlineStatusPicker(ctx)
-
-			if (onlineStatus === undefined) {
-				return
-			}
-
-			const statusMessage = await internals.showMessagePicker(ctx)
-
-			if (statusMessage === undefined) {
-				return
-			}
-
-			selected = {
-				message: statusMessage,
-				online: onlineStatus,
-			}
-		}
-
-		await api.setStatus(apiEndpoint, authOptions, selected)
-
-		await internals.setCurrentStatus(ctx, selected)
+		// TODO: Not implemented
+		throw new Error("Not implemented")
 	}))
 
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("setStatusMessage"), async () => {
-		const apiEndpoint = await internals.getApiUrl()
-
-		if (apiEndpoint === undefined) {
-			return await internals.showNotConfiguredError()
-		}
-
-		const authOptions = await internals.getAuthOptions(ctx)
-
-		if (authOptions === undefined) {
-			return await internals.showNotLoggedInError()
-		}
-
-		const current = await internals.getCurrentStatus(ctx)
-
-		if (current === undefined) {
-			return await internals.showNoCurrentStateError()
-		}
-
-		const statusMessage = await internals.showMessagePicker(ctx)
-
-		if (statusMessage === undefined) {
-			return
-		}
-
-		const status = {
-			message: statusMessage,
-			online: current.online,
-		}
-
-		await api.setStatus(apiEndpoint, authOptions, status)
-		await internals.setCurrentStatus(ctx, status)
+	ctx.subscriptions.push(vscode.commands.registerCommand(buildCommand("setStatusMessage"), async () => {
+		// TODO: Not implemented
+		throw new Error("Not implemented")
 	}))
-
-	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("setup"), async () => {
-		const apiEndpoint = await vscode.window.showInputBox({
-			placeHolder: "https://rocket.example.com",
-			prompt: "Base URL of the Rocket.Chat server",
-			validateInput: (endpoint => {
-				try {
-					new URL(endpoint)
-					return
-				} catch (err: unknown) {
-					return `${endpoint} is not a valid URL.`
-				}
-			}),
-			value: await internals.getApiUrl(),
-		})
-
-		if (apiEndpoint === undefined) {
-			return
-		}
-
-		await internals.setApiUrl(apiEndpoint)
-	}))
-
-	ctx.subscriptions.push(internals.statusBarItem)
 }
 
 export async function deactivate(): Promise<void> {

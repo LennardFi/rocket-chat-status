@@ -9,10 +9,17 @@ The following features may be added in the future:
 
 ## [0.2.0] - 2021-03-25
 
+### Added
+
+- Added migration routines
+- Added `Rocket.Chat Status: Delete data` command to delete every stored data
+
 ### Changed
 
 - The extension code has been completely rewritten to make it easier to debug
-  and extend
+  and extend.
+- Moved `rocket-chat-status.apiURL` config to internally managed settings.
+  Setting can be changed via the `Rocket.Chat Status: Setup` command.
 
 ## [0.1.3] - 2021-03-25
 
