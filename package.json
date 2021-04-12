@@ -9,6 +9,7 @@
   "categories": [
     "Other"
   ],
+  "license": "MIT",
   "contributes": {
     "commands": [
       {
