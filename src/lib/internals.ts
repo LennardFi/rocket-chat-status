@@ -13,15 +13,20 @@ export async function deleteAuthOptions(ctx: vscode.ExtensionContext): Promise<v
 }
 
 export async function getAuthOptions(ctx: vscode.ExtensionContext): Promise<Maybe<RocketChatStatus.AuthOptions>> {
-    const authToken = await ctx.secrets.get(authTokenField)
-    const userId = await ctx.secrets.get(userIdField)
+    try {
+        const authToken = await ctx.secrets.get(authTokenField)
+        const userId = await ctx.secrets.get(userIdField)
 
-    if (authToken === undefined || userId === undefined) {
+        if (authToken === undefined || userId === undefined) {
+            return undefined
+        }
+
+        return {
+            authToken: authToken,
+            userId: userId,
+        }
+    } catch (err: unknown) {
         return undefined
-    }
-    return {
-        authToken: authToken,
-        userId: userId,
     }
 }
 
