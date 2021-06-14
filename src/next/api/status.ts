@@ -1,4 +1,4 @@
-import { RCSNext } from ".."
+import { RocketChatStatus } from ".."
 import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
 
 /**
@@ -8,9 +8,9 @@ import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
  * @returns The status currently set for the user linked to the given
  * `authToken` and user id.
  */
-export async function downloadStatus(setup: RCSNext.Base.Setup): Promise<RCSNext.Base.Status> {
+export async function downloadStatus(setup: RocketChatStatus.Base.Setup): Promise<RocketChatStatus.Base.Status> {
     try {
-        const parsed = await apiFetch<RCSNext.Network.GetStatusApiEndpointResponse>({
+        const parsed = await apiFetch<RocketChatStatus.Network.GetStatusApiEndpointResponse>({
             apiPath: "/users.getStatus",
             method: "GET",
             setup: setup,
@@ -39,9 +39,9 @@ export async function downloadStatus(setup: RCSNext.Base.Setup): Promise<RCSNext
  * server to associate the request with a user.
  * @param status The new status of the user.
  */
-export async function uploadStatus(setup: RCSNext.Base.Setup, status: RCSNext.Base.Status): Promise<void> {
+export async function uploadStatus(setup: RocketChatStatus.Base.Setup, status: RocketChatStatus.Base.Status): Promise<void> {
     try {
-        const parsed = await apiFetch<RCSNext.Network.SetStatusApiEndpointResponse>({
+        const parsed = await apiFetch<RocketChatStatus.Network.SetStatusApiEndpointResponse>({
             apiPath: "/users.setStatus",
             jsonBody: {
                 message: status.message,

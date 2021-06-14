@@ -1,7 +1,10 @@
 import { URL } from "url"
-import { RCSNext } from "../next"
+import { RocketChatStatus } from "../next"
 
-export function buildCommand(cmd: RCSNext.Base.Command): string {
+/**
+ * @deprecated
+ */
+export function buildCommand(cmd: RocketChatStatus.Base.Command): string {
     return `rocket-chat-status.${cmd}`
 }
 

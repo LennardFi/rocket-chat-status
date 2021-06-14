@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { RCSNext } from ".."
+import { RocketChatStatus } from ".."
 
 const configSection = "rocket-chat-status"
 
@@ -11,11 +11,11 @@ export async function deleteBookedStatuses(): Promise<void> {
         .update(bookmarkedStatusesField, undefined, true)
 }
 
-export async function getBookedStatuses(): Promise<RCSNext.Base.StoredStatus[]> {
+export async function getBookedStatuses(): Promise<RocketChatStatus.Base.StoredStatus[]> {
     const statuses =
         vscode.workspace
             .getConfiguration(configSection)
-            .get<RCSNext.Base.StoredStatus[]>(bookmarkedStatusesField)
+            .get<RocketChatStatus.Base.StoredStatus[]>(bookmarkedStatusesField)
 
     if (statuses === undefined) {
         return []
@@ -24,7 +24,7 @@ export async function getBookedStatuses(): Promise<RCSNext.Base.StoredStatus[]> 
     return statuses
 }
 
-export async function setBookedStatuses(bookedStatuses: RCSNext.Base.StoredStatus[]): Promise<void> {
+export async function setBookedStatuses(bookedStatuses: RocketChatStatus.Base.StoredStatus[]): Promise<void> {
     await vscode.workspace
         .getConfiguration(configSection)
         .update(bookmarkedStatusesField, bookedStatuses, true)

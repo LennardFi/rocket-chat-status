@@ -1,4 +1,4 @@
-export declare namespace RCSNext {
+export declare namespace RocketChatStatus {
     namespace Base {
         type Command =
             | "bookmarkCurrentStatus"

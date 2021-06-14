@@ -1,7 +1,7 @@
 import * as Https from "https"
 import { URL } from "url"
 import * as vscode from "vscode"
-import { RCSNext } from ".."
+import { RocketChatStatus } from ".."
 import { buildCommand } from "../../lib/tools"
 
 /**
@@ -11,7 +11,7 @@ import { buildCommand } from "../../lib/tools"
  * method, request body, base URL, etc.
  * @returns The HTTPS request options used by the Node.js HTTPS client.
  */
-function buildRequestOptions(apiRequest: RCSNext.Network.ApiRequest): Https.RequestOptions {
+function buildRequestOptions(apiRequest: RocketChatStatus.Network.ApiRequest): Https.RequestOptions {
     const apiPath =
         apiRequest.apiPath.startsWith("/") ?
             apiRequest.apiPath.substring(1) :
@@ -58,7 +58,7 @@ function buildRequestOptions(apiRequest: RCSNext.Network.ApiRequest): Https.Requ
  * @param apiRequest Options to build the request. Contains parameter like HTTP
  * method, request body, etc.
  */
-export async function apiFetch<T>(apiRequest: RCSNext.Network.ApiRequest): Promise<T> {
+export async function apiFetch<T>(apiRequest: RocketChatStatus.Network.ApiRequest): Promise<T> {
     return new Promise((resolve, reject) => {
         const requestOptions = buildRequestOptions(apiRequest)
         const req = Https.request(requestOptions, res => {

@@ -1,13 +1,13 @@
 # Change Log
 
-## [Unreleased]
+## [Scheduled]
 
 The following features may be added in the future:
 
 - Check API for current status periodically and set the value in the extension
   global state if the downloaded status differs from the current value.
 
-## [0.2.0] - 2021-03-25
+## [1.0.0] - 2021-06-15
 
 ### Added
 
@@ -20,6 +20,31 @@ The following features may be added in the future:
   and extend.
 - Moved `rocket-chat-status.apiURL` config to internally managed settings.
   Setting can be changed via the `Rocket.Chat Status: Setup` command.
+
+## [0.3.1] - 2021-06-14
+
+### Changed
+
+Updated dependencies
+
+## [0.3.0] - 2021-04-13
+
+### Added
+
+- Added `onlineStatusLabel` configuration to change the behavior of the label in
+  the status bar.
+
+### Changed
+
+- By default, the online status label is now colored.
+
+## [0.2.0] - 2021-04-12
+
+### Changed
+
+- Fixed a bug where the extension crashed when the credentials could not be
+  loaded.
+- Updated dependencies to the latest version
 
 ## [0.1.3] - 2021-03-25
 

@@ -1,10 +1,10 @@
 import * as vscode from "vscode"
-import { RCSNext } from "."
+import { RocketChatStatus } from "."
 import { setupField } from "./data/setup"
 
 const versionField = "version"
 
-async function migrateLegacy(ctx: vscode.ExtensionContext): Promise<RCSNext.Base.Version> {
+async function migrateLegacy(ctx: vscode.ExtensionContext): Promise<RocketChatStatus.Base.Version> {
     try {
         const authToken = await ctx.secrets.get("authToken")
         const userId = await ctx.secrets.get("userId")
@@ -21,7 +21,7 @@ async function migrateLegacy(ctx: vscode.ExtensionContext): Promise<RCSNext.Base
                 authToken: authToken,
                 baseUrl: baseUrl,
                 userId: userId,
-            } as RCSNext.Base.Setup))
+            } as RocketChatStatus.Base.Setup))
             return "0.2.0"
         }
         return undefined
@@ -32,7 +32,7 @@ async function migrateLegacy(ctx: vscode.ExtensionContext): Promise<RCSNext.Base
 
 export default async function migration(ctx: vscode.ExtensionContext): Promise<boolean> {
     try {
-        const currentVersion = ctx.globalState.get<RCSNext.Base.Version>(versionField)
+        const currentVersion = ctx.globalState.get<RocketChatStatus.Base.Version>(versionField)
 
         let migratedVersion = currentVersion
 

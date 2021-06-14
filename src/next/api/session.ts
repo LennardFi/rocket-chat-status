@@ -1,4 +1,4 @@
-import { Maybe, RCSNext } from ".."
+import { Maybe, RocketChatStatus } from ".."
 import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
 
 /**
@@ -10,9 +10,9 @@ import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
  * @returns The authorization token and user id to authenticate the extension
  * requests at the API.
  */
-export async function login(baseUrl: string, user: string, password: string): Promise<Maybe<RCSNext.Base.Setup>> {
+export async function login(baseUrl: string, user: string, password: string): Promise<Maybe<RocketChatStatus.Base.Setup>> {
     try {
-        const parsed = await apiFetch<RCSNext.Network.LoginApiEndpointResponse>({
+        const parsed = await apiFetch<RocketChatStatus.Network.LoginApiEndpointResponse>({
             apiPath: "/login",
             jsonBody: {
                 user: user,
@@ -47,9 +47,9 @@ export async function login(baseUrl: string, user: string, password: string): Pr
  * @param auth The information to authenticate the request and to allow the
  * server to associate the request with a user.
  */
-export async function logout(setup: RCSNext.Base.Setup): Promise<void> {
+export async function logout(setup: RocketChatStatus.Base.Setup): Promise<void> {
     try {
-        const parsed = await apiFetch<RCSNext.Network.LogoutApiEndpointResponse>({
+        const parsed = await apiFetch<RocketChatStatus.Network.LogoutApiEndpointResponse>({
             apiPath: "/logout",
             method: "POST",
             setup: setup,

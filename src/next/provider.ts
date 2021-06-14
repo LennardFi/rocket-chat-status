@@ -1,5 +1,5 @@
 import * as vscode from "vscode"
-import { RCSNext } from "."
+import { RocketChatStatus } from "."
 import { Maybe } from ".."
 import { buildCommand } from "../lib/tools"
 import { login, logout } from "./api/session"
@@ -10,8 +10,8 @@ import { deleteSetup, getSetup } from "./data/setup"
 
 export class RocketChatStatusProvider {
     public readonly context: vscode.ExtensionContext
-    protected setup: Maybe<RCSNext.Base.Setup> = undefined
-    protected state: Maybe<RCSNext.Base.State> = undefined
+    protected setup: Maybe<RocketChatStatus.Base.Setup> = undefined
+    protected state: Maybe<RocketChatStatus.Base.State> = undefined
     protected statusBarLabel: vscode.StatusBarItem
 
     constructor(ctx: vscode.ExtensionContext) {
@@ -105,7 +105,7 @@ export class RocketChatStatusProvider {
         }
     }
 
-    public async getStatus(): Promise<Maybe<RCSNext.Base.Status>> {
+    public async getStatus(): Promise<Maybe<RocketChatStatus.Base.Status>> {
         try {
             if (this.setup === undefined) {
                 await RocketChatStatusProvider.showNoSetupError()
@@ -149,7 +149,7 @@ export class RocketChatStatusProvider {
         }
     }
 
-    public async updateStatus(updater: (prev: RCSNext.Base.Status) => Promise<RCSNext.Base.Status>): Promise<void> {
+    public async updateStatus(updater: (prev: RocketChatStatus.Base.Status) => Promise<RocketChatStatus.Base.Status>): Promise<void> {
         try {
             if (this.setup === undefined) {
                 return await RocketChatStatusProvider.showNoSetupError()
@@ -190,7 +190,7 @@ export class RocketChatStatusProvider {
                         return prevHistory
                     }
                     return [...prevHistory, s]
-                }, [status] as RCSNext.Base.StoredStatus[])
+                }, [status] as RocketChatStatus.Base.StoredStatus[])
             }
         } catch (err: unknown) {
             return await RocketChatStatusProvider.showInternalError("Unknown error in \"updateStatus\"", err)
