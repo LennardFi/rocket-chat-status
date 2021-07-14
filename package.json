@@ -108,7 +108,7 @@
   },
   "description": "Set the Rocket.Chat status from within VSCode",
   "devDependencies": {
-    "@types/node": "^15.12.2",
+    "@types/node": "^16.3.2",
     "@types/vscode": "^1.57.0",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
@@ -121,7 +121,7 @@
   },
   "displayName": "Rocket.Chat Status",
   "engines": {
-    "vscode": "^1.57.0"
+    "vscode": "^1.58.1"
   },
   "license": "MIT",
   "main": "./dist/extension.js",
@@ -139,5 +139,5 @@
     "vscode:prepublish": "npm run package",
     "watch": "webpack --watch"
   },
-  "version": "0.3.2"
+  "version": "0.4.0"
 }
