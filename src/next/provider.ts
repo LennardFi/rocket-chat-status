@@ -1,12 +1,12 @@
 import * as vscode from "vscode"
 import { RocketChatStatus } from "."
-import { Maybe } from ".."
 import { buildCommand } from "../lib/tools"
 import { login, logout } from "./api/session"
 import { downloadStatus, uploadStatus } from "./api/status"
 import { deleteBookedStatuses, getBookedStatuses, setBookedStatuses } from "./data/bookedStatuses"
 import { deleteHistory, getHistory } from "./data/history"
 import { deleteSetup, getSetup } from "./data/setup"
+import { Maybe } from "./index"
 
 export class RocketChatStatusProvider {
     public readonly context: vscode.ExtensionContext

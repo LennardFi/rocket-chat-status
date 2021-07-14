@@ -1,5 +1,6 @@
 import * as vscode from "vscode"
 import { Maybe, RocketChatStatus } from ".."
+import { error, internalErrorUserInfoMsg, warn } from "../ui/error"
 
 export const setupField = "setup"
 
@@ -7,11 +8,14 @@ export async function deleteSetup(ctx: vscode.ExtensionContext): Promise<void> {
     await ctx.secrets.delete(setupField)
 }
 
-export async function getSetup(ctx: vscode.ExtensionContext): Promise<Maybe<RocketChatStatus.Base.Setup>> {
+export async function getSetup(ctx: vscode.ExtensionContext, errorOnUndefined?: boolean): Promise<Maybe<RocketChatStatus.Base.Setup>> {
     const rawSetup = await ctx.secrets.get(setupField)
 
     if (rawSetup === undefined) {
-        return undefined
+        if (errorOnUndefined) {
+            await error("Extension not set up", [rawSetup], "Extension not set up.")
+        }
+        return
     }
 
     try {
@@ -26,9 +30,9 @@ export async function getSetup(ctx: vscode.ExtensionContext): Promise<Maybe<Rock
             return parsed as RocketChatStatus.Base.Setup
         }
 
-        return undefined
+        await warn("Invalid stored setup value", [rawSetup], internalErrorUserInfoMsg)
     } catch (err: unknown) {
-        return undefined
+        await error("Could not parse JSON of stored setup", [rawSetup], internalErrorUserInfoMsg)
     }
 
 }

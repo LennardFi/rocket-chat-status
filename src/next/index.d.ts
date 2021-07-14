@@ -1,3 +1,5 @@
+import * as vscode from "vscode"
+
 export declare namespace RocketChatStatus {
     namespace Base {
         type Command =
@@ -41,7 +43,11 @@ export declare namespace RocketChatStatus {
 
         type Version =
             | undefined
-            | "0.2.0"
+            | "1.0.0"
+    }
+
+    namespace Internals {
+        type MigrationHandler = (ctx: vscode.ExtensionContext) => Promise<Base.Version>
     }
 
     namespace Network {
