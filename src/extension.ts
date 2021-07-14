@@ -17,7 +17,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 				await internals.setCurrentStatus(ctx, currentStatus)
 			}
 		} catch (err: unknown) {
-			await vscode.window.showErrorMessage("Could not load current Rocket.Chat status.")
+			await internals.showCouldNotAccessStatusError(err)
 		}
 	}
 
@@ -25,7 +25,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		const current = await internals.getCurrentStatus(ctx)
 
 		if (current === undefined) {
-			return await internals.showNoCurrentStateError()
+			return
 		}
 
 		await internals.addBookmarkedStatus(current)
@@ -49,9 +49,13 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 			return await internals.showNotLoggedInError()
 		}
 
-		const status = await api.getStatus(apiEndpoint, authOptions)
+		try {
+			const status = await api.getStatus(apiEndpoint, authOptions)
 
-		await internals.setCurrentStatus(ctx, status)
+			await internals.setCurrentStatus(ctx, status)
+		} catch (err: unknown) {
+			await internals.showCouldNotAccessStatusError(err)
+		}
 	}))
 
 	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("login"), async () => {
@@ -78,12 +82,17 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 			return
 		}
 
-		const authOptions = await api.login(apiEndpoint, user, password)
+		try {
+			const authOptions = await api.login(apiEndpoint, user, password)
 
-		await internals.setAuthOptions(ctx, authOptions)
+			await internals.setAuthOptions(ctx, authOptions)
 
-		const status = await api.getStatus(apiEndpoint, authOptions)
-		await internals.setCurrentStatus(ctx, status)
+			const status = await api.getStatus(apiEndpoint, authOptions)
+			await internals.setCurrentStatus(ctx, status)
+		} catch (err: unknown) {
+			await vscode.window.showErrorMessage("Could not authenticate at the API.")
+		}
+
 	}))
 
 	ctx.subscriptions.push(vscode.commands.registerCommand(tools.buildCommand("logout"), async () => {
@@ -183,7 +192,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 		const current = await internals.getCurrentStatus(ctx)
 
 		if (current === undefined) {
-			return await internals.showNoCurrentStateError()
+			return
 		}
 
 		const statusMessage = await internals.showMessagePicker(ctx)

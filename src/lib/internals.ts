@@ -245,6 +245,9 @@ export async function showMessagePicker(ctx: vscode.ExtensionContext): Promise<M
     return selectedMessage
 }
 
+export const outputChannel: vscode.OutputChannel =
+    vscode.window.createOutputChannel("Rocket.Chat Status")
+
 export const statusBarItem: vscode.StatusBarItem =
     vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 3)
 
@@ -296,14 +299,18 @@ export async function showNotConfiguredError(): Promise<void> {
     }
 }
 
-export async function showNoCurrentStateError(): Promise<void> {
-    await vscode.window.showErrorMessage("Could not access current status.")
+export async function showCouldNotAccessStatusError(errorDetails: unknown): Promise<void> {
+    const msg = "Could not download current Rocket.Chat status."
+    outputChannel.appendLine(`${msg}\nDetails: \t${JSON.stringify(errorDetails, undefined, 2).replace("\n", "\n\t")}`)
+    await vscode.window.showErrorMessage(msg)
 }
 
 export async function showNotLoggedInError(): Promise<void> {
     const result =
         await vscode.window
             .showErrorMessage("Not logged in.", "Login")
+
+    outputChannel.appendLine("Not logged in.")
 
     if (result === "Login") {
         await vscode.commands.executeCommand(tools.buildCommand("login"))

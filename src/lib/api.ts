@@ -114,28 +114,23 @@ function buildInvalidJsonApiResponse(endpoint: string): string {
  * requests at the API.
  */
 export async function login(serverUrl: string, user: string, password: string): Promise<RocketChatStatus.AuthOptions> {
-    try {
-        const parsed = await apiFetch<RocketChatStatus.LoginApiEndpointResponse>(serverUrl, {
-            apiPath: "/login",
-            jsonBody: {
-                user: user,
-                password: password,
-            },
-            method: "POST",
-        })
+    const parsed = await apiFetch<RocketChatStatus.LoginApiEndpointResponse>(serverUrl, {
+        apiPath: "/login",
+        jsonBody: {
+            user: user,
+            password: password,
+        },
+        method: "POST",
+    })
 
-        if ("status" in parsed && parsed.status === "success") {
-            return {
-                authToken: parsed.data.authToken,
-                userId: parsed.data.userId,
-            }
+    if ("status" in parsed && parsed.status === "success") {
+        return {
+            authToken: parsed.data.authToken,
+            userId: parsed.data.userId,
         }
-
-        throw new Error(buildInvalidJsonApiResponse("login"))
-    } catch (err: unknown) {
-        console.error(err)
-        throw new Error("Login failed")
     }
+
+    throw new Error(buildInvalidJsonApiResponse("login"))
 }
 
 /**
@@ -144,22 +139,17 @@ export async function login(serverUrl: string, user: string, password: string): 
  * server to associate the request with a user.
  */
 export async function logout(serverUrl: string, auth: RocketChatStatus.AuthOptions): Promise<void> {
-    try {
-        const parsed = await apiFetch<RocketChatStatus.LogoutApiEndpointResponse>(serverUrl, {
-            apiPath: "/logout",
-            auth: auth,
-            method: "POST",
-        })
+    const parsed = await apiFetch<RocketChatStatus.LogoutApiEndpointResponse>(serverUrl, {
+        apiPath: "/logout",
+        auth: auth,
+        method: "POST",
+    })
 
-        if ("status" in parsed && parsed.status === "success") {
-            return
-        }
-
-        throw new Error(buildInvalidJsonApiResponse("logout"))
-    } catch (err: unknown) {
-        console.error(err)
-        throw new Error("Logout failed")
+    if ("status" in parsed && parsed.status === "success") {
+        return
     }
+
+    throw new Error(buildInvalidJsonApiResponse("logout"))
 }
 
 /**
@@ -170,25 +160,20 @@ export async function logout(serverUrl: string, auth: RocketChatStatus.AuthOptio
  * `authToken` and user id.
  */
 export async function getStatus(serverUrl: string, auth: RocketChatStatus.AuthOptions): Promise<RocketChatStatus.Status> {
-    try {
-        const parsed = await apiFetch<RocketChatStatus.GetStatusApiEndpointResponse>(serverUrl, {
-            apiPath: "/users.getStatus",
-            auth: auth,
-            method: "GET",
-        })
+    const parsed = await apiFetch<RocketChatStatus.GetStatusApiEndpointResponse>(serverUrl, {
+        apiPath: "/users.getStatus",
+        auth: auth,
+        method: "GET",
+    })
 
-        if (parsed.success) {
-            return {
-                message: parsed.message,
-                online: parsed.status,
-            }
+    if (parsed.success) {
+        return {
+            message: parsed.message,
+            online: parsed.status,
         }
-
-        throw new Error(buildInvalidJsonApiResponse("getStatus"))
-    } catch (err: unknown) {
-        console.error(err)
-        throw new Error("Get status failed")
     }
+
+    throw new Error(buildInvalidJsonApiResponse("getStatus"))
 }
 
 /**
@@ -198,24 +183,19 @@ export async function getStatus(serverUrl: string, auth: RocketChatStatus.AuthOp
  * @param status The new status of the user.
  */
 export async function setStatus(serverUrl: string, auth: RocketChatStatus.AuthOptions, status: RocketChatStatus.Status): Promise<void> {
-    try {
-        const parsed = await apiFetch<RocketChatStatus.SetStatusApiEndpointResponse>(serverUrl, {
-            apiPath: "/users.setStatus",
-            auth: auth,
-            jsonBody: {
-                message: status.message,
-                status: status.online
-            },
-            method: "POST",
-        })
+    const parsed = await apiFetch<RocketChatStatus.SetStatusApiEndpointResponse>(serverUrl, {
+        apiPath: "/users.setStatus",
+        auth: auth,
+        jsonBody: {
+            message: status.message,
+            status: status.online
+        },
+        method: "POST",
+    })
 
-        if (parsed.success) {
-            return
-        }
-
-        throw new Error(buildInvalidJsonApiResponse("setStatus"))
-    } catch (err: unknown) {
-        console.error(err)
-        throw new Error("Set status failed")
+    if (parsed.success) {
+        return
     }
+
+    throw new Error(buildInvalidJsonApiResponse("setStatus"))
 }
