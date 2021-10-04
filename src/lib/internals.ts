@@ -25,28 +25,52 @@ export async function getAuthOptions(ctx: vscode.ExtensionContext): Promise<Mayb
             authToken: authToken,
             userId: userId,
         }
-    } catch (err: unknown) {
-        return undefined
+    } catch (e: unknown) {
+        logMessage("Could not get API login secrets from storage.", {
+            verbose: true,
+        })
+        throw e
     }
 }
 
 export async function setAuthOptions(ctx: vscode.ExtensionContext, authOptions: RocketChatStatus.AuthOptions): Promise<void> {
-    await ctx.secrets.store(authTokenField, authOptions.authToken)
-    await ctx.secrets.store(userIdField, authOptions.userId)
+    try {
+        await ctx.secrets.store(authTokenField, authOptions.authToken)
+        await ctx.secrets.store(userIdField, authOptions.userId)
+    } catch (e: unknown) {
+        logMessage("Could not set API login secrets to storage.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 const apiUrlField = "apiUrl"
 
 export async function getApiUrl(): Promise<Maybe<string>> {
-    return vscode.workspace
-        .getConfiguration(configSection)
-        .get<string>(apiUrlField)
+    try {
+        return vscode.workspace
+            .getConfiguration(configSection)
+            .get<string>(apiUrlField)
+    } catch (e: unknown) {
+        logMessage("Could not set API login secrets to storage.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 export async function setApiUrl(apiUrl: string): Promise<void> {
-    return await vscode.workspace
-        .getConfiguration(configSection)
-        .update(apiUrlField, apiUrl, true)
+    try {
+        return await vscode.workspace
+            .getConfiguration(configSection)
+            .update(apiUrlField, apiUrl, true)
+    } catch (e: unknown) {
+        logMessage("Could not update API URL in global configuration.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 const onlineStatusLabelField = "onlineStatusLabel"
@@ -57,7 +81,7 @@ export async function getOnlineStatusLabelConfig(): Promise<RocketChatStatus.Onl
             .getConfiguration(configSection)
             .get<RocketChatStatus.OnlineStatusLabelConfig>(onlineStatusLabelField)
     if (onlineStatusLabelConfig === undefined) {
-        throw new Error("No value for status label config found.")
+        return "Label and color"
     }
     return onlineStatusLabelConfig
 }
@@ -70,7 +94,7 @@ export async function getStatusHistoryLimit(): Promise<number> {
             .getConfiguration(configSection)
             .get<number>(statusHistoryLimitField)
     if (cacheLimit === undefined) {
-        throw new Error("No value for status cache limit found.")
+        return 10
     }
     return cacheLimit
 }
@@ -78,7 +102,14 @@ export async function getStatusHistoryLimit(): Promise<number> {
 export async function initStatusBarItem(ctx: vscode.ExtensionContext): Promise<void> {
     vscode.workspace.onDidChangeConfiguration(async e => {
         if (e.affectsConfiguration(configSection)) {
-            await updateStatusBarLabel(ctx)
+            try {
+                await updateStatusBarLabel(ctx)
+            } catch (e: unknown) {
+                logMessage("Could not initialize status bar item.", {
+                    verbose: true,
+                })
+                throw e
+            }
         }
     })
 }
@@ -90,61 +121,103 @@ export async function getCurrentStatus(ctx: vscode.ExtensionContext): Promise<Ma
 }
 
 export async function setCurrentStatus(ctx: vscode.ExtensionContext, status: Maybe<RocketChatStatus.Status>): Promise<void> {
-    const current = await getCurrentStatus(ctx)
+    try {
+        const current = await getCurrentStatus(ctx)
 
-    if (current) {
-        await addToStatusHistory(ctx, current)
+        if (current) {
+            await addToStatusHistory(ctx, current)
+        }
+
+        await ctx.globalState.update(currentStatusField, status)
+        await updateStatusBarLabel(ctx)
+    } catch (e: unknown) {
+        logMessage("Could store current status.", {
+            verbose: true,
+        })
+        throw e
     }
-
-    await ctx.globalState.update(currentStatusField, status)
-    await updateStatusBarLabel(ctx)
 }
 
 const statusHistoryField = "statusHistory"
 
 export async function addToStatusHistory(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
-    const cache = await getStatusHistory(ctx)
-    const bookmarked = await getBookmarkedStatuses()
-    const cacheLimit = await getStatusHistoryLimit()
-    const nextHistory =
-        [status, ...cache
-            .filter(s =>
-                (s.message !== status.message || s.online !== status.online) &&
-                !bookmarked.some(bookmarkedStatus =>
-                    bookmarkedStatus.message === s.message && bookmarkedStatus.online === s.online))]
-            .slice(0, cacheLimit)
-    return await ctx.globalState.update(statusHistoryField, nextHistory)
+    try {
+        const cache = await getStatusHistory(ctx)
+        const bookmarked = await getBookmarkedStatuses()
+        const cacheLimit = await getStatusHistoryLimit()
+        const nextHistory =
+            [status, ...cache
+                .filter(s =>
+                    (s.message !== status.message || s.online !== status.online) &&
+                    !bookmarked.some(bookmarkedStatus =>
+                        bookmarkedStatus.message === s.message && bookmarkedStatus.online === s.online))]
+                .slice(0, cacheLimit)
+        return await ctx.globalState.update(statusHistoryField, nextHistory)
+    } catch (e: unknown) {
+        logMessage("Could not add status to status history.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 export async function deleteStatusHistory(ctx: vscode.ExtensionContext): Promise<void> {
-    return await ctx.globalState.update(statusHistoryField, [])
+    try {
+        return await ctx.globalState.update(statusHistoryField, [])
+    } catch (e: unknown) {
+        logMessage("Could not delete status history.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 export async function removeFromStatusHistory(ctx: vscode.ExtensionContext, status: RocketChatStatus.Status): Promise<void> {
-    const cache = await getStatusHistory(ctx)
-    const cacheLimit = await getStatusHistoryLimit()
-    const nextHistory =
-        cache
-            .filter(s => (s.message !== status.message || s.online !== status.online))
-            .slice(0, cacheLimit)
-    return await ctx.globalState.update(statusHistoryField, nextHistory)
+    try {
+        const cache = await getStatusHistory(ctx)
+        const cacheLimit = await getStatusHistoryLimit()
+        const nextHistory =
+            cache
+                .filter(s => (s.message !== status.message || s.online !== status.online))
+                .slice(0, cacheLimit)
+        return await ctx.globalState.update(statusHistoryField, nextHistory)
+    } catch (e: unknown) {
+        logMessage("Could not remove status from status history.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 export async function getStatusHistory(ctx: vscode.ExtensionContext): Promise<RocketChatStatus.Status[]> {
-    return [...(ctx.globalState.get<RocketChatStatus.Status[]>(statusHistoryField) ?? [])]
+    try {
+        return [...(ctx.globalState.get<RocketChatStatus.Status[]>(statusHistoryField) ?? [])]
+    } catch (e: unknown) {
+        logMessage("Could not load status history.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 const bookmarkedStatusesField = "bookmarkedStatuses"
 
 export async function addBookmarkedStatus(status: RocketChatStatus.Status): Promise<void> {
-    const prev = await getBookmarkedStatuses()
-    const next =
-        prev.some(s => s.message === status.message && s.online === status.online) ?
-            [...prev] :
-            [...prev, status]
-    return await vscode.workspace
-        .getConfiguration(configSection)
-        .update(bookmarkedStatusesField, next, true)
+    try {
+        const prev = await getBookmarkedStatuses()
+        const next =
+            prev.some(s => s.message === status.message && s.online === status.online) ?
+                [...prev] :
+                [...prev, status]
+        return await vscode.workspace
+            .getConfiguration(configSection)
+            .update(bookmarkedStatusesField, next, true)
+    } catch (e: unknown) {
+        logMessage("Could not bookmark status.", {
+            verbose: true,
+        })
+        throw e
+    }
 }
 
 export async function getBookmarkedStatuses(): Promise<RocketChatStatus.Status[]> {
@@ -252,41 +325,48 @@ export const statusBarItem: vscode.StatusBarItem =
     vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 3)
 
 export async function updateStatusBarLabel(ctx: vscode.ExtensionContext): Promise<void> {
-    const currentStatus = await getCurrentStatus(ctx)
+    try {
+        const currentStatus = await getCurrentStatus(ctx)
 
-    const labelConfig = await getOnlineStatusLabelConfig()
+        const labelConfig = await getOnlineStatusLabelConfig()
 
-    if (labelConfig === "Label and color" || labelConfig === "Only color") {
-        switch (currentStatus?.online) {
-            case "away":
-                statusBarItem.color = "#f3be08"
-                break
-            case "busy":
-                statusBarItem.color = "#f5455c"
-                break
-            case "offline":
-                statusBarItem.color = undefined
-                break
-            case "online":
-                statusBarItem.color = "#2de0a5"
-                break
-        }
-    } else {
-        statusBarItem.color = undefined
-    }
-
-    if (currentStatus) {
-        statusBarItem.command = tools.buildCommand("setStatus")
-
-        if (labelConfig === "Only label" || labelConfig === "Label and color") {
-            statusBarItem.text = `$(rocket) [${onlineStatusLabels[currentStatus.online]}] ${currentStatus.message}`
+        if (labelConfig === "Label and color" || labelConfig === "Only color") {
+            switch (currentStatus?.online) {
+                case "away":
+                    statusBarItem.color = "#f3be08"
+                    break
+                case "busy":
+                    statusBarItem.color = "#f5455c"
+                    break
+                case "offline":
+                    statusBarItem.color = undefined
+                    break
+                case "online":
+                    statusBarItem.color = "#2de0a5"
+                    break
+            }
         } else {
-            statusBarItem.text = `$(rocket) ${currentStatus.message}`
+            statusBarItem.color = undefined
         }
-        statusBarItem.show()
-        return
+
+        if (currentStatus) {
+            statusBarItem.command = tools.buildCommand("setStatus")
+
+            if (labelConfig === "Only label" || labelConfig === "Label and color") {
+                statusBarItem.text = `$(rocket) [${onlineStatusLabels[currentStatus.online]}] ${currentStatus.message}`
+            } else {
+                statusBarItem.text = `$(rocket) ${currentStatus.message}`
+            }
+            statusBarItem.show()
+            return
+        }
+        statusBarItem.hide()
+    } catch (e: unknown) {
+        logMessage("Could not update status bar label.", {
+            verbose: true,
+        })
+        throw e
     }
-    statusBarItem.hide()
 }
 
 export async function showNotConfiguredError(): Promise<void> {
@@ -301,7 +381,7 @@ export async function showNotConfiguredError(): Promise<void> {
 
 export async function showCouldNotAccessStatusError(errorDetails: unknown): Promise<void> {
     const msg = "Could not download current Rocket.Chat status."
-    outputChannel.appendLine(`${msg}\nDetails: \t${JSON.stringify(errorDetails, undefined, 2).replace("\n", "\n\t")}`)
+    logMessage(`${msg}\nDetails: \t${JSON.stringify(errorDetails, undefined, 2).replace("\n", "\n\t")}`)
     await vscode.window.showErrorMessage(msg)
 }
 
@@ -310,9 +390,17 @@ export async function showNotLoggedInError(): Promise<void> {
         await vscode.window
             .showErrorMessage("Not logged in.", "Login")
 
-    outputChannel.appendLine("Not logged in.")
+    logMessage("Not logged in.")
 
     if (result === "Login") {
         await vscode.commands.executeCommand(tools.buildCommand("login"))
+    }
+}
+
+export function logMessage(msg: string, options?: RocketChatStatus.LogMessageOptions): void {
+    outputChannel.appendLine(`${new Date().toISOString().replace("T", " ")}: ${msg.split("\n").join("\n\t\t")}`)
+
+    if (options?.showChannel) {
+        outputChannel.show(true)
     }
 }

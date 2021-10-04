@@ -1,6 +1,7 @@
 import * as Https from "https"
 import { URL } from "url"
 import { RocketChatStatus } from ".."
+import { logMessage } from "./internals"
 
 /**
  * Builds a request options object used by the Node.js HTTPS client from the
@@ -124,6 +125,7 @@ export async function login(serverUrl: string, user: string, password: string): 
     })
 
     if ("status" in parsed && parsed.status === "success") {
+        logMessage("Successfully logged in.")
         return {
             authToken: parsed.data.authToken,
             userId: parsed.data.userId,
@@ -146,6 +148,7 @@ export async function logout(serverUrl: string, auth: RocketChatStatus.AuthOptio
     })
 
     if ("status" in parsed && parsed.status === "success") {
+        logMessage("Successfully logged out.")
         return
     }
 
@@ -167,6 +170,7 @@ export async function getStatus(serverUrl: string, auth: RocketChatStatus.AuthOp
     })
 
     if (parsed.success) {
+        logMessage("Downloaded current status.")
         return {
             message: parsed.message,
             online: parsed.status,
@@ -194,6 +198,7 @@ export async function setStatus(serverUrl: string, auth: RocketChatStatus.AuthOp
     })
 
     if (parsed.success) {
+        logMessage(`Uploaded new status: [${status.online}] ${status.message}`)
         return
     }
 

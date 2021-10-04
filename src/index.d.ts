@@ -114,6 +114,11 @@ export declare namespace RocketChatStatus {
     interface SetStatusApiEndpointResponse {
         success: true
     }
+
+    interface LogMessageOptions {
+        showChannel?: boolean
+        verbose?: boolean
+    }
 }
 
 export type Maybe<T> = T | undefined
