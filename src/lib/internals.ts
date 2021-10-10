@@ -398,7 +398,7 @@ export async function showNotLoggedInError(): Promise<void> {
 }
 
 export function logMessage(msg: string, options?: RocketChatStatus.LogMessageOptions): void {
-    outputChannel.appendLine(`${new Date().toISOString().replace("T", " ")}: ${msg.split("\n").join("\n\t\t")}`)
+    outputChannel.appendLine(`${new Date().toISOString().replace("T", " ")}:\t${msg.split("\n").join("\n\t\t\t\t\t\t\t")}`)
 
     if (options?.showChannel) {
         outputChannel.show(true)
