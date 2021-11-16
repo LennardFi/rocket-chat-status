@@ -381,7 +381,7 @@ export async function showNotConfiguredError(): Promise<void> {
 
 export async function showCouldNotAccessStatusError(errorDetails: unknown): Promise<void> {
     const msg = "Could not download current Rocket.Chat status."
-    logMessage(`${msg}\nDetails: \t${JSON.stringify(errorDetails, undefined, 2).replace("\n", "\n\t")}`)
+    logMessage(`${msg}\nDetails: \t${String(errorDetails)}`)
     await vscode.window.showErrorMessage(msg)
 }
 

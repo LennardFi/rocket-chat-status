@@ -198,7 +198,7 @@ export async function setStatus(serverUrl: string, auth: RocketChatStatus.AuthOp
     })
 
     if (parsed.success) {
-        logMessage(`Uploaded new status: [${status.online}] ${status.message}`)
+        logMessage(`Uploaded new status: [${status.online}] "${status.message}"`)
         return
     }
 
