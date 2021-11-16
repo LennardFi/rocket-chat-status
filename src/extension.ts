@@ -241,7 +241,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<void> {
 				showChannel: true,
 			})
 		} else {
-			internals.logMessage(`Critical extension error:\n${JSON.stringify(err)}`, {
+			internals.logMessage(`Critical extension error:\n${String(err)}`, {
 				showChannel: true,
 			})
 		}
