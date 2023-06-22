@@ -1,0 +1,95 @@
+import * as vscode from "vscode";
+
+export declare namespace RocketChatStatusNext {
+    namespace Base {
+        type Online = "online" | "away" | "busy" | "hidden";
+
+        interface ApiStatus {
+            /**
+             * The text linked to the online status.
+             */
+            message: string;
+            /**
+             * `false` if no client is connected to the server, otherwise `true`.
+             */
+            offline: boolean;
+            /**
+             *
+             */
+            online: Online;
+        }
+
+        type LocalStatus = Omit<ApiStatus, "offline">;
+
+        interface AuthOptions {
+            authToken: string;
+            userId: string;
+        }
+
+        interface Setup extends AuthOptions {
+            baseUrl: string;
+        }
+    }
+
+    namespace MVU {
+        type UpdateFunction = (prev: Model) => Model;
+
+        interface StatusBarItemModel {
+            hidden: boolean;
+            icon: string;
+            label: string;
+            color?: string;
+            iconSpinAnimation?: boolean;
+        }
+
+        interface ErrorMessageModel {
+            buttons: string[];
+            description: string;
+            header: string;
+        }
+
+        interface StatusSelectionInputModel {
+            currentStatus: RocketChatStatusNext.Base.Status;
+            statusesHistory: RocketChatStatusNext.Base.Status;
+            storedStatuses: RocketChatStatusNext.Base.Status;
+        }
+
+        interface SetupInputModel {
+            apiUrl: string;
+            userName: string;
+            password: string;
+        }
+
+        interface OutputChannelModel {
+            hidden: boolean;
+        }
+
+        interface Model {
+            statusBarItem: StatusBarItemModel;
+            outputChannel?: OutputChannelModel;
+            setupInput?: SetupInputModel;
+            statusSelectionInput?: StatusSelectionInputModel;
+        }
+
+        type OutputChannelChanges = Partial<OutputChannelModel>;
+
+        type StatusBarItemChanges = Partial<StatusBarItemModel>;
+
+        type SetupInputChanges = Partial<SetupInputModel>;
+
+        type StatusSelectionInputChanges = Partial<StatusSelectionInputModel>;
+
+        interface ModelChanges {
+            statusBarItem: StatusBarItemChanges;
+            outputChannel?: OutputChannelChanges;
+            setupInput?: SetupInputChanges;
+            statusSelectionInput?: StatusSelectionInputChanges;
+        }
+
+        interface View {
+            outputChannel: vscode.OutputChannel;
+            setupInput?: vscode.InputBox;
+            statusBarItem?: vscode.StatusBarItem;
+        }
+    }
+}

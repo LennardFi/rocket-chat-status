@@ -1,6 +1,5 @@
 {
 	"recommendations": [
-		"dbaeumer.vscode-eslint",
-		"eamodio.tsl-problem-matcher"
+		"dbaeumer.vscode-eslint"
 	]
 }

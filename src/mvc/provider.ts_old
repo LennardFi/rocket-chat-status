@@ -1,9 +1,13 @@
 import * as vscode from "vscode"
 import { RocketChatStatus } from "."
-import { buildCommand } from "../lib/tools"
-import { login, logout } from "./api/session"
-import { downloadStatus, uploadStatus } from "./api/status"
-import { deleteBookedStatuses, getBookedStatuses, setBookedStatuses } from "./data/bookedStatuses"
+import { buildCommand } from "../lib/tools.ts_old"
+import { login, logout } from "./api/session.ts_old"
+import { downloadStatus, uploadStatus } from "./api/status.ts_old"
+import {
+    deleteBookedStatuses,
+    getBookedStatuses,
+    setBookedStatuses,
+} from "./data/bookedStatuses"
 import { deleteHistory, getHistory } from "./data/history"
 import { deleteSetup, getSetup } from "./data/setup"
 import { Maybe } from "./index"
@@ -17,12 +21,13 @@ export class RocketChatStatusProvider {
     constructor(ctx: vscode.ExtensionContext) {
         this.context = ctx
 
-        this.statusBarLabel =
-            vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
+        this.statusBarLabel = vscode.window.createStatusBarItem(
+            vscode.StatusBarAlignment.Left
+        )
 
         ctx.subscriptions.push(this.statusBarLabel)
 
-        void getSetup(this.context).then(async setup => {
+        void getSetup(this.context).then(async (setup) => {
             if (setup !== undefined) {
                 this.setup = setup
                 const bookmarked = await getBookedStatuses()
@@ -32,7 +37,7 @@ export class RocketChatStatusProvider {
                 this.state = {
                     bookmarked: bookmarked,
                     history: history,
-                    status: status
+                    status: status,
                 }
 
                 await this.updateLabel()
@@ -50,15 +55,27 @@ export class RocketChatStatusProvider {
 
             const status = this.state.status
 
-            if (bookedStatuses.some(s => s.message === status.message && s.online === status.online)) {
+            if (
+                bookedStatuses.some(
+                    (s) =>
+                        s.message === status.message &&
+                        s.online === status.online
+                )
+            ) {
                 return
             }
-            await setBookedStatuses([...bookedStatuses, {
-                message: status.message,
-                online: status.online,
-            }])
+            await setBookedStatuses([
+                ...bookedStatuses,
+                {
+                    message: status.message,
+                    online: status.online,
+                },
+            ])
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Unknown error in \"bookmarkStatus\"", err)
+            await RocketChatStatusProvider.showInternalError(
+                'Unknown error in "bookmarkStatus"',
+                err
+            )
         }
     }
 
@@ -86,9 +103,15 @@ export class RocketChatStatusProvider {
             await deleteHistory(this.context)
             await deleteSetup(this.context)
 
-            await RocketChatStatusProvider.showInternalError("Not implemented", "deleteData")
+            await RocketChatStatusProvider.showInternalError(
+                "Not implemented",
+                "deleteData"
+            )
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Unknown error in \"deleteData\"", err)
+            await RocketChatStatusProvider.showInternalError(
+                'Unknown error in "deleteData"',
+                err
+            )
         }
     }
 
@@ -101,7 +124,10 @@ export class RocketChatStatusProvider {
             const status = await downloadStatus(this.setup)
             await this.updateStatus(async () => status)
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Unknown error in \"deleteData\"", err)
+            await RocketChatStatusProvider.showInternalError(
+                'Unknown error in "deleteData"',
+                err
+            )
         }
     }
 
@@ -119,12 +145,19 @@ export class RocketChatStatusProvider {
 
             return this.state.status
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Unknown error in \"getStatus\"", err)
+            await RocketChatStatusProvider.showInternalError(
+                'Unknown error in "getStatus"',
+                err
+            )
             return
         }
     }
 
-    public async login(apiUrl: string, username: string, password: string): Promise<void> {
+    public async login(
+        apiUrl: string,
+        username: string,
+        password: string
+    ): Promise<void> {
         try {
             const setup = await login(apiUrl, username, password)
 
@@ -134,7 +167,10 @@ export class RocketChatStatusProvider {
             }
             await RocketChatStatusProvider.showNoSetupError()
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Could not set API URL", err)
+            await RocketChatStatusProvider.showInternalError(
+                "Could not set API URL",
+                err
+            )
         }
     }
 
@@ -145,11 +181,18 @@ export class RocketChatStatusProvider {
             }
             await RocketChatStatusProvider.showNoSetupError()
         } catch (err: unknown) {
-            await RocketChatStatusProvider.showInternalError("Could not logout", err)
+            await RocketChatStatusProvider.showInternalError(
+                "Could not logout",
+                err
+            )
         }
     }
 
-    public async updateStatus(updater: (prev: RocketChatStatus.Base.Status) => Promise<RocketChatStatus.Base.Status>): Promise<void> {
+    public async updateStatus(
+        updater: (
+            prev: RocketChatStatus.Base.Status
+        ) => Promise<RocketChatStatus.Base.Status>
+    ): Promise<void> {
         try {
             if (this.setup === undefined) {
                 return await RocketChatStatusProvider.showNoSetupError()
@@ -165,10 +208,10 @@ export class RocketChatStatusProvider {
 
                 const offlineResult = await vscode.window.showErrorMessage(
                     "Currently, no server URL has been configured. " +
-                    "If you delete the authentication data now, " +
-                    "it will not be invalidated on the server. " +
-                    "This could allow someone to log into your account " +
-                    "using these authentication credentials.",
+                        "If you delete the authentication data now, " +
+                        "it will not be invalidated on the server. " +
+                        "This could allow someone to log into your account " +
+                        "using these authentication credentials.",
                     continueAction
                 )
 
@@ -185,15 +228,24 @@ export class RocketChatStatusProvider {
 
             this.state = {
                 ...this.state,
-                history: this.state.history.reduce((prevHistory, s) => {
-                    if (s.message === status.message && s.online === status.online) {
-                        return prevHistory
-                    }
-                    return [...prevHistory, s]
-                }, [status] as RocketChatStatus.Base.StoredStatus[])
+                history: this.state.history.reduce(
+                    (prevHistory, s) => {
+                        if (
+                            s.message === status.message &&
+                            s.online === status.online
+                        ) {
+                            return prevHistory
+                        }
+                        return [...prevHistory, s]
+                    },
+                    [status] as RocketChatStatus.Base.StoredStatus[]
+                ),
             }
         } catch (err: unknown) {
-            return await RocketChatStatusProvider.showInternalError("Unknown error in \"updateStatus\"", err)
+            return await RocketChatStatusProvider.showInternalError(
+                'Unknown error in "updateStatus"',
+                err
+            )
         }
     }
 
@@ -215,7 +267,6 @@ export class RocketChatStatusProvider {
         const status = this.state.status
 
         if (typeof status === "object") {
-
             let color: Maybe<string> = undefined
             let label
 
@@ -250,9 +301,10 @@ export class RocketChatStatusProvider {
 
     static async showNoStateError(): Promise<void> {
         const loginAction = "Login"
-        const result =
-            await vscode.window
-                .showErrorMessage("Rocket.Chat API URL hasn't been configured.", loginAction)
+        const result = await vscode.window.showErrorMessage(
+            "Rocket.Chat API URL hasn't been configured.",
+            loginAction
+        )
 
         if (result === loginAction) {
             await vscode.commands.executeCommand(buildCommand("login"))
@@ -261,9 +313,10 @@ export class RocketChatStatusProvider {
 
     static async showNoSetupError(): Promise<void> {
         const loginAction = "Login"
-        const result =
-            await vscode.window
-                .showErrorMessage("Rocket.Chat API URL hasn't been configured.", loginAction)
+        const result = await vscode.window.showErrorMessage(
+            "Rocket.Chat API URL hasn't been configured.",
+            loginAction
+        )
 
         if (result === loginAction) {
             await vscode.commands.executeCommand(buildCommand("login"))

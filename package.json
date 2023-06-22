@@ -1,143 +1,130 @@
 {
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "author": {
-    "email": "info@lennard-fickus.de",
-    "name": "LennardFi"
-  },
-  "categories": [
-    "Other"
-  ],
-  "contributes": {
-    "commands": [
-      {
-        "command": "rocket-chat-status.deleteStatusHistory",
-        "title": "Rocket.Chat Status: Delete status history"
-      },
-      {
-        "command": "rocket-chat-status.downloadStatus",
-        "title": "Rocket.Chat Status: Download status"
-      },
-      {
-        "command": "rocket-chat-status.login",
-        "title": "Rocket.Chat Status: Login"
-      },
-      {
-        "command": "rocket-chat-status.logout",
-        "title": "Rocket.Chat Status: Logout"
-      },
-      {
-        "command": "rocket-chat-status.setStatus",
-        "title": "Rocket.Chat Status: Set status"
-      },
-      {
-        "command": "rocket-chat-status.setStatusMessage",
-        "title": "Rocket.Chat Status: Set status message"
-      },
-      {
-        "command": "rocket-chat-status.setup",
-        "title": "Rocket.Chat Status: Setup"
-      },
-      {
-        "command": "rocket-chat-status.bookmarkCurrentStatus",
-        "title": "Rocket.Chat Status: Bookmark current status"
-      }
+    "activationEvents": [
+        "onStartupFinished"
     ],
-    "configuration": {
-      "properties": {
-        "rocket-chat-status.apiUrl": {
-          "description": "The base URL of the API endpoint",
-          "examples": [
-            "https://rocket.example.com/"
-          ],
-          "title": "API base URL",
-          "type": "string"
-        },
-        "rocket-chat-status.bookmarkedStatuses": {
-          "default": [],
-          "description": "Contains the bookmarked statuses.",
-          "items": {
-            "properties": {
-              "message": {
-                "description": "The optional message of the status.",
-                "type": "string"
-              },
-              "online": {
-                "description": "The online status like \"online\" or \"busy\".",
-                "enum": [
-                  "online",
-                  "away",
-                  "busy",
-                  "offline"
-                ],
-                "type": "string"
-              }
+    "author": {
+        "email": "info@lennard-fickus.de",
+        "name": "LennardFi"
+    },
+    "categories": [
+        "Other"
+    ],
+    "contributes": {
+        "commands": [
+            {
+                "command": "rocket-chat-status.openMenu",
+                "icon": "$(rocket)",
+                "shortTitle": "RCS: Open Menu",
+                "title": "Rocket.Chat Status: Open Menu"
             }
-          },
-          "title": "Bookmarked statuses",
-          "type": "array",
-          "uniqueItems": true
-        },
-        "rocket-chat-status.onlineStatusLabel": {
-          "default": "Label and color",
-          "description": "This config can be used to change the display behavior of the Online status in the Rocket.Chat status bar item",
-          "enum": [
-            "Label and color",
-            "Only color",
-            "Only label"
-          ],
-          "enumDescriptions": [
-            "Shows online status label and it's according color",
-            "Shows only the color of the online status",
-            "Shows only the online status label"
-          ],
-          "type": "string"
-        },
-        "rocket-chat-status.statusHistoryLimit": {
-          "default": 10,
-          "markdownDescription": "If this option is not `0`, the extension stores the specified number of statuses last set by this extension.",
-          "maximum": 255,
-          "minimum": 0,
-          "title": "Status history limit",
-          "type": "number"
+        ],
+        "configuration": {
+            "properties": {
+                "rocket-chat-status.apiUrl": {
+                    "description": "The base URL of the API endpoint",
+                    "examples": [
+                        "https://rocket.example.com/"
+                    ],
+                    "title": "API base URL",
+                    "type": "string"
+                },
+                "rocket-chat-status.historyLimit": {
+                    "default": 10,
+                    "markdownDescription": "If this option is not `0`, the extension stores the specified number of statuses last set by this extension.",
+                    "maximum": 1024,
+                    "minimum": 0,
+                    "title": "Status history limit",
+                    "type": "number"
+                },
+                "rocket-chat-status.statusLabelFormat": {
+                    "default": "{colorBegin}{:rocket:} {msg}{colorEnd}",
+                    "description": "This configuration can be used to format the appearance of the Rocket.Chat status bar item",
+                    "type": "string"
+                },
+                "rocket-chat-status.templates": {
+                    "editPresentation": "singlelineText",
+                    "examples": [
+                        {
+                            "availability": "away",
+                            "message": "Lunch break till {t+1h,~5m,=\"[hh]:[mm]\"}"
+                        },
+                        {
+                            "availability": "online",
+                            "message": "Working on {#@\"https://github.com/UserOrCompany/MyProject/issues/%i\"}"
+                        }
+                    ],
+                    "items": {
+                        "properties": {
+                            "availability": {
+                                "oneOf": [
+                                    "online",
+                                    "away",
+                                    "busy",
+                                    "hidden",
+                                    "all"
+                                ],
+                                "type": "string"
+                            },
+                            "message": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "markdownDescription": "[Show the Guide](https://github.com/LennardFi/rocket-chat-status/tree/main/doc/status-message-templates.md)",
+                    "title": "Status templates",
+                    "type": "array"
+                }
+            },
+            "title": "Rocket.Chat Status"
         }
-      },
-      "title": "Rocket.Chat Status"
-    }
-  },
-  "description": "Set the Rocket.Chat status from within VSCode",
-  "devDependencies": {
-    "@types/node": "^15.12.2",
-    "@types/vscode": "^1.57.0",
-    "@typescript-eslint/eslint-plugin": "^4.27.0",
-    "@typescript-eslint/parser": "^4.27.0",
-    "eslint": "^7.28.0",
-    "ts-loader": "^9.2.3",
-    "typescript": "^4.3.2",
-    "vscode-test": "^1.5.2",
-    "webpack": "^5.38.1",
-    "webpack-cli": "^4.7.2"
-  },
-  "displayName": "Rocket.Chat Status",
-  "engines": {
-    "vscode": "^1.57.0"
-  },
-  "license": "MIT",
-  "main": "./dist/extension.js",
-  "name": "rocket-chat-status",
-  "publisher": "lennardfi",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/LennardFi/rocket-chat-status"
-  },
-  "scripts": {
-    "compile": "webpack",
-    "lint": "eslint src --ext ts",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "pretest": "npm run test-compile && npm run lint",
-    "vscode:prepublish": "npm run package",
-    "watch": "webpack --watch"
-  },
-  "version": "0.3.1"
+    },
+    "dependencies": {
+        "temporal-polyfill": "^0.0.7"
+    },
+    "description": "Set the Rocket.Chat status from within VSCode",
+    "devDependencies": {
+        "@types/jest": "^28.1.1",
+        "@types/node": "^15.12.2",
+        "@types/vscode": "^1.68.0",
+        "@typescript-eslint/eslint-plugin": "^4.27.0",
+        "@typescript-eslint/parser": "^4.27.0",
+        "eslint": "^7.28.0",
+        "jest": "^28.1.0",
+        "prettier": "^2.5.1",
+        "ts-jest": "^28.0.4",
+        "ts-loader": "^9.2.3",
+        "ts-node": "^10.8.1",
+        "typescript": "^4.3.2",
+        "vscode-test": "^1.5.2",
+        "webpack": "^5.38.1",
+        "webpack-cli": "^4.7.2"
+    },
+    "displayName": "Rocket.Chat Status",
+    "engines": {
+        "vscode": "^1.68.0"
+    },
+    "license": "MIT",
+    "main": "./dist/extension.js",
+    "name": "rocket-chat-status",
+    "publisher": "lennardfi",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/LennardFi/rocket-chat-status"
+    },
+    "scripts": {
+        "precompile": "npm run lint",
+        "compile": "webpack",
+        "predev": "npm run lint",
+        "dev": "webpack --watch",
+        "lint": "eslint src --ext ts",
+        "prepackage": "npm run lint && npm run test",
+        "package": "webpack --mode production --devtool hidden-source-map",
+        "pretest": "npm run lint",
+        "test": "jest",
+        "pretest:watch": "npm run pretest",
+        "test:watch": "jest --watch",
+        "vscode:prepublish": "npm run package"
+    },
+    "version": "0.3.1"
 }

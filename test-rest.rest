@@ -1,0 +1,60 @@
+@host = rocket.systemhaus-brunner.de
+@protocol = https
+@port = 3000
+@apiBaseUrl = {{protocol}}://{{host}}/api/v1
+@user = lfickus
+@password = trebnab.3
+@authToken = buu2DrAFm9TYemahZq05jh98JFyI8KSl33xwY14SpKW
+@userId = hhLRcHm9NbXrPoXFw
+### Login
+POST {{apiBaseUrl}}/login
+Content-Type: application/json
+
+{
+    "user": "{{user}}",
+    "password": "{{password}}"
+}
+### Login - wrong password
+POST {{apiBaseUrl}}/login
+Content-Type: application/json
+
+{
+    "user": "{{user}}",
+    "password": "{{password}}abc"
+}
+### Logout
+POST {{apiBaseUrl}}/logout
+X-Auth-Token: {{authToken}}
+X-User-Id: {{userId}}
+### Logout - wrong password
+POST {{apiBaseUrl}}/logout
+X-Auth-Token: {{authToken}}sd
+X-User-Id: {{userId}}
+### Status
+GET {{apiBaseUrl}}/users.getStatus
+X-Auth-Token: {{authToken}}
+X-User-Id: {{userId}}
+### Status - wrong password
+GET {{apiBaseUrl}}/users.getStatus
+X-Auth-Token: {{authToken}}sd
+X-User-Id: {{userId}}
+### Status
+POST {{apiBaseUrl}}/users.setStatus
+Content-Type: application/json
+X-Auth-Token: {{authToken}}
+X-User-Id: {{userId}}
+
+{
+    "message":"My status update",
+    "status": "online"
+}
+### Status - wrong password
+POST {{apiBaseUrl}}/users.setStatus
+Content-Type: application/json
+X-Auth-Token: {{authToken}}sd
+X-User-Id: {{userId}}
+
+{
+    "message":"My status update",
+    "status": "online"
+}

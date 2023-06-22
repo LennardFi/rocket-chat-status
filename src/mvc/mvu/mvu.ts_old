@@ -1,0 +1,54 @@
+import * as vscode from "vscode"
+import { RocketChatStatusNext } from "."
+
+/**
+ * The current ui state of the UI. Contains the state of the output channel, as
+ * well as the status line entry.
+ */
+const view: RocketChatStatusNext.MVU.View = {
+    outputChannel: vscode.window.createOutputChannel("Rocket.Chat Status"),
+}
+
+/**
+ * Contains the modeled state of the extension. This includes an abstracted
+ * state of the UI elements.
+ */
+let model: RocketChatStatusNext.MVU.Model = {
+    outputChannel: {
+        hidden: false,
+    },
+    statusBarItem: {
+        hidden: true,
+        icon: "loading",
+        iconSpinAnimation: true,
+        label: "Initializing...",
+    },
+}
+
+/**
+ *
+ * @param modelChanges
+ */
+function renderOutputChannelChanges(
+    nextModel: RocketChatStatusNext.MVU.ModelChanges["outputChannel"],
+): RocketChatStatusNext.MVU.Model {
+    if (nextModel.outputChannel?.hidden) {
+    }
+}
+
+/**
+ *
+ * @param nextModel The new model state
+ */
+function renderChanges(nextModel: RocketChatStatusNext.MVU.Model): RocketChatStatusNext.MVU.Model {
+    if (nextModel.outputChannel?.hidden) {
+    }
+}
+
+export function getModel(): RocketChatStatusNext.MVU.Model {
+    return model
+}
+
+export function updateModel(updater: RocketChatStatusNext.MVU.UpdateFunction): void {
+    model = updater(model)
+}

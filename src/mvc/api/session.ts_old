@@ -1,5 +1,5 @@
 import { Maybe, RocketChatStatus } from ".."
-import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
+import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch.ts_old"
 
 /**
  * Creates a new authentication token in the database for the given user. It
@@ -10,22 +10,27 @@ import { apiFetch, buildInvalidJsonApiResponse } from "./apiFetch"
  * @returns The authorization token and user id to authenticate the extension
  * requests at the API.
  */
-export async function login(baseUrl: string, user: string, password: string): Promise<Maybe<RocketChatStatus.Base.Setup>> {
+export async function login(
+    baseUrl: string,
+    user: string,
+    password: string
+): Promise<Maybe<RocketChatStatus.Base.Setup>> {
     try {
-        const parsed = await apiFetch<RocketChatStatus.Network.LoginApiEndpointResponse>({
-            apiPath: "/login",
-            jsonBody: {
-                user: user,
-                password: password,
-            },
-            method: "POST",
-            setup: {
-                authToken: "",
-                baseUrl: baseUrl,
-                userId: "",
-            },
-            showAuthTokenError: true,
-        })
+        const parsed =
+            await apiFetch<RocketChatStatus.Network.LoginApiEndpointResponse>({
+                apiPath: "/login",
+                jsonBody: {
+                    user: user,
+                    password: password,
+                },
+                method: "POST",
+                setup: {
+                    authToken: "",
+                    baseUrl: baseUrl,
+                    userId: "",
+                },
+                showAuthTokenError: true,
+            })
 
         if ("status" in parsed && parsed.status === "success") {
             return {
@@ -47,13 +52,16 @@ export async function login(baseUrl: string, user: string, password: string): Pr
  * @param auth The information to authenticate the request and to allow the
  * server to associate the request with a user.
  */
-export async function logout(setup: RocketChatStatus.Base.Setup): Promise<void> {
+export async function logout(
+    setup: RocketChatStatus.Base.Setup
+): Promise<void> {
     try {
-        const parsed = await apiFetch<RocketChatStatus.Network.LogoutApiEndpointResponse>({
-            apiPath: "/logout",
-            method: "POST",
-            setup: setup,
-        })
+        const parsed =
+            await apiFetch<RocketChatStatus.Network.LogoutApiEndpointResponse>({
+                apiPath: "/logout",
+                method: "POST",
+                setup: setup,
+            })
 
         if ("status" in parsed && parsed.status === "success") {
             return
@@ -65,4 +73,3 @@ export async function logout(setup: RocketChatStatus.Base.Setup): Promise<void> 
         throw new Error("Logout failed")
     }
 }
-

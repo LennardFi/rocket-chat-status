@@ -2,7 +2,7 @@ import * as Https from "https"
 import { URL } from "url"
 import * as vscode from "vscode"
 import { RocketChatStatus } from ".."
-import { buildCommand } from "../../lib/tools"
+import { buildCommand } from "../../lib/tools.ts_old"
 
 /**
  * Builds a request options object used by the Node.js HTTPS client from the
@@ -11,14 +11,15 @@ import { buildCommand } from "../../lib/tools"
  * method, request body, base URL, etc.
  * @returns The HTTPS request options used by the Node.js HTTPS client.
  */
-function buildRequestOptions(apiRequest: RocketChatStatus.Network.ApiRequest): Https.RequestOptions {
-    const apiPath =
-        apiRequest.apiPath.startsWith("/") ?
-            apiRequest.apiPath.substring(1) :
-            `/${apiRequest.apiPath}`
+function buildRequestOptions(
+    apiRequest: RocketChatStatus.Network.ApiRequest
+): Https.RequestOptions {
+    const apiPath = apiRequest.apiPath.startsWith("/")
+        ? apiRequest.apiPath.substring(1)
+        : `/${apiRequest.apiPath}`
 
     const headers: Record<string, string> = {
-        "accept": "application/json",
+        accept: "application/json",
     }
 
     if (typeof apiRequest.setup === "object") {
@@ -31,9 +32,9 @@ function buildRequestOptions(apiRequest: RocketChatStatus.Network.ApiRequest): H
     }
 
     let baseUrl =
-        typeof apiRequest.setup === "string" ?
-            apiRequest.setup :
-            apiRequest.setup.baseUrl
+        typeof apiRequest.setup === "string"
+            ? apiRequest.setup
+            : apiRequest.setup.baseUrl
 
     if (!baseUrl.endsWith("/")) {
         baseUrl = `${baseUrl}/`
@@ -58,12 +59,14 @@ function buildRequestOptions(apiRequest: RocketChatStatus.Network.ApiRequest): H
  * @param apiRequest Options to build the request. Contains parameter like HTTP
  * method, request body, etc.
  */
-export async function apiFetch<T>(apiRequest: RocketChatStatus.Network.ApiRequest): Promise<T> {
+export async function apiFetch<T>(
+    apiRequest: RocketChatStatus.Network.ApiRequest
+): Promise<T> {
     return new Promise((resolve, reject) => {
         const requestOptions = buildRequestOptions(apiRequest)
-        const req = Https.request(requestOptions, res => {
+        const req = Https.request(requestOptions, (res) => {
             let data = ""
-            res.on("data", chunk => {
+            res.on("data", (chunk) => {
                 data += chunk
             })
             res.on("end", () => {
@@ -71,13 +74,22 @@ export async function apiFetch<T>(apiRequest: RocketChatStatus.Network.ApiReques
                     return reject(new Error("No status code"))
                 }
 
-                if (res.statusCode === 401 && typeof apiRequest.setup === "object" && apiRequest.showAuthTokenError) {
+                if (
+                    res.statusCode === 401 &&
+                    typeof apiRequest.setup === "object" &&
+                    apiRequest.showAuthTokenError
+                ) {
                     const loginAction = "Login"
                     void vscode.window
-                        .showErrorMessage("Authorization token isn't valid.", loginAction)
-                        .then(action => {
+                        .showErrorMessage(
+                            "Authorization token isn't valid.",
+                            loginAction
+                        )
+                        .then((action) => {
                             if (action === loginAction) {
-                                return vscode.commands.executeCommand(buildCommand("login"))
+                                return vscode.commands.executeCommand(
+                                    buildCommand("login")
+                                )
                             }
                             return
                         })
@@ -85,7 +97,13 @@ export async function apiFetch<T>(apiRequest: RocketChatStatus.Network.ApiReques
                 }
 
                 if (res.statusCode < 200 || res.statusCode >= 400) {
-                    return reject(new Error(`API returned with HTTP error: ${res.statusCode} ${res.statusMessage ?? ""}`))
+                    return reject(
+                        new Error(
+                            `API returned with HTTP error: ${res.statusCode} ${
+                                res.statusMessage ?? ""
+                            }`
+                        )
+                    )
                 }
 
                 try {
